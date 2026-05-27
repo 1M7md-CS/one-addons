@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "oneaddons",
+  "version": "${version}",
+  "name": "OneAddons",
+  "description": "OneAddons - Flower, Mushroom & Enchanting utilities.",
+  "authors": [
+    "1M7md"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.mod.client.OneAddons"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": "1.21.11",
+    "fabric-api": "*",
+    "java": ">=21"
+  }
+}
