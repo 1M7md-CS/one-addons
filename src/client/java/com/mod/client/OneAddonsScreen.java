@@ -8,13 +8,14 @@ import net.minecraft.text.Text;
 public class OneAddonsScreen extends Screen {
 
     private static final int PANEL_W = 190;
-    private static final int PANEL_H = 135;
+    private static final int PANEL_H = 160;
     private static final int BORDER_COLOR = 0xFF4C46A6;
     private static final int PANEL_COLOR = 0xF0101117;
 
     private ButtonWidget flowerBtn;
     private ButtonWidget mushroomBtn;
     private ButtonWidget enchantingBtn;
+    private ButtonWidget autoMineBtn;
 
     public OneAddonsScreen() {
         super(Text.literal("OneAddons"));
@@ -53,10 +54,19 @@ public class OneAddonsScreen extends Screen {
         ).dimensions(cx - 75, cy + 78, 150, 20).build();
         addDrawableChild(enchantingBtn);
 
+        autoMineBtn = ButtonWidget.builder(
+            Text.literal("AutoMine: " + (OneAddons.autoMineEnabled ? "ON" : "OFF")),
+            btn -> {
+                OneAddons.autoMineEnabled = !OneAddons.autoMineEnabled;
+                btn.setMessage(Text.literal("AutoMine: " + (OneAddons.autoMineEnabled ? "ON" : "OFF")));
+            }
+        ).dimensions(cx - 75, cy + 102, 150, 20).build();
+        addDrawableChild(autoMineBtn);
+
         addDrawableChild(ButtonWidget.builder(
             Text.literal("Close"),
             btn -> close()
-        ).dimensions(cx - 35, cy + 106, 70, 20).build());
+        ).dimensions(cx - 35, cy + 126, 70, 20).build());
     }
 
     @Override

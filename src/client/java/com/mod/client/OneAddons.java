@@ -17,6 +17,7 @@ public class OneAddons implements ClientModInitializer {
     public static boolean enchantingEnabled = false;
     public static boolean flowerEnabled = false;
     public static boolean mushroomEnabled = false;
+    public static boolean autoMineEnabled = false;
 
     private static final Identifier HUD_ID = Identifier.of("oneaddons", "hud");
 
@@ -54,6 +55,7 @@ public class OneAddons implements ClientModInitializer {
     private EnchantingModule enchantingModule;
     private FlowerModule flowerModule;
     private MushroomModule mushroomModule;
+    private AutoMineModule autoMineModule;
 
     private int lastDisplayedCps = -1;
     private String cachedCpsString = "0 CPS";
@@ -64,6 +66,7 @@ public class OneAddons implements ClientModInitializer {
         enchantingModule = new EnchantingModule();
         flowerModule = new FlowerModule();
         mushroomModule = new MushroomModule();
+        autoMineModule = new AutoMineModule();
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("oneaddons").executes(ctx -> {
@@ -91,6 +94,8 @@ public class OneAddons implements ClientModInitializer {
         }
 
         if (flowerEnabled) flowerModule.tick(client);
+
+        if (autoMineEnabled) autoMineModule.tick(client);
     }
 
     private void onHud(DrawContext ctx, RenderTickCounter tickCounter) {
