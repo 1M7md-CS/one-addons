@@ -15,8 +15,7 @@ public class OneAddonsScreen extends Screen {
     private ButtonWidget flowerBtn;
     private ButtonWidget mushroomBtn;
     private ButtonWidget enchantingBtn;
-    private ButtonWidget autoMineBtn;
-
+    private ButtonWidget autoChestBtn;
     public OneAddonsScreen() {
         super(Text.literal("OneAddons"));
     }
@@ -54,14 +53,14 @@ public class OneAddonsScreen extends Screen {
         ).dimensions(cx - 75, cy + 78, 150, 20).build();
         addDrawableChild(enchantingBtn);
 
-        autoMineBtn = ButtonWidget.builder(
-            Text.literal("AutoMine: " + (OneAddons.autoMineEnabled ? "ON" : "OFF")),
+        autoChestBtn = ButtonWidget.builder(
+            Text.literal("AutoChest: " + (OneAddons.autoChestEnabled ? "ON" : "OFF")),
             btn -> {
-                OneAddons.autoMineEnabled = !OneAddons.autoMineEnabled;
-                btn.setMessage(Text.literal("AutoMine: " + (OneAddons.autoMineEnabled ? "ON" : "OFF")));
+                OneAddons.autoChestEnabled = !OneAddons.autoChestEnabled;
+                btn.setMessage(Text.literal("AutoChest: " + (OneAddons.autoChestEnabled ? "ON" : "OFF")));
             }
         ).dimensions(cx - 75, cy + 102, 150, 20).build();
-        addDrawableChild(autoMineBtn);
+        addDrawableChild(autoChestBtn);
 
         addDrawableChild(ButtonWidget.builder(
             Text.literal("Close"),

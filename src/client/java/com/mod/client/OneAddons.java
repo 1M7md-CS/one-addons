@@ -17,8 +17,7 @@ public class OneAddons implements ClientModInitializer {
     public static boolean enchantingEnabled = false;
     public static boolean flowerEnabled = false;
     public static boolean mushroomEnabled = false;
-    public static boolean autoMineEnabled = false;
-
+    public static boolean autoChestEnabled = false;
     private static final Identifier HUD_ID = Identifier.of("oneaddons", "hud");
 
     private static final int HUD_PAD = 10;
@@ -55,8 +54,7 @@ public class OneAddons implements ClientModInitializer {
     private EnchantingModule enchantingModule;
     private FlowerModule flowerModule;
     private MushroomModule mushroomModule;
-    private AutoMineModule autoMineModule;
-
+    private AutoChestModule autoChestModule;
     private int lastDisplayedCps = -1;
     private String cachedCpsString = "0 CPS";
     private boolean pendingScreenOpen = false;
@@ -66,8 +64,7 @@ public class OneAddons implements ClientModInitializer {
         enchantingModule = new EnchantingModule();
         flowerModule = new FlowerModule();
         mushroomModule = new MushroomModule();
-        autoMineModule = new AutoMineModule();
-
+        autoChestModule = new AutoChestModule();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("oneaddons").executes(ctx -> {
                 pendingScreenOpen = true;
@@ -95,7 +92,7 @@ public class OneAddons implements ClientModInitializer {
 
         if (flowerEnabled) flowerModule.tick(client);
 
-        if (autoMineEnabled) autoMineModule.tick(client);
+        if (autoChestEnabled) autoChestModule.tick(client);
     }
 
     private void onHud(DrawContext ctx, RenderTickCounter tickCounter) {
