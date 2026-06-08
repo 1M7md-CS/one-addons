@@ -25,7 +25,7 @@ public class OneAddons implements ClientModInitializer {
 
     private static KeyBinding cooldownFixKey;
 
-    private EnchantingModule enchantingModule;
+    private EnchantingAssistModule enchantingAssistModule;
     private FlowerModule flowerModule;
     private MushroomModule mushroomModule;
     private ChestAssistModule chestAssistModule;
@@ -35,7 +35,7 @@ public class OneAddons implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        enchantingModule = new EnchantingModule();
+        enchantingAssistModule = new EnchantingAssistModule();
         flowerModule = new FlowerModule();
         mushroomModule = new MushroomModule();
         chestAssistModule = new ChestAssistModule();
@@ -67,7 +67,7 @@ public class OneAddons implements ClientModInitializer {
             client.setScreen(new OneAddonsScreen());
         }
 
-        if (enchantingEnabled) enchantingModule.tick(client);
+        if (enchantingEnabled) enchantingAssistModule.tick(client);
         if (mushroomEnabled) {
             mushroomModule.tick(client);
         } else {
