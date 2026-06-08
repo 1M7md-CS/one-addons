@@ -4,7 +4,7 @@ Client-side Fabric mod for Minecraft 1.21.11 with automation utilities for Hypix
 
 ## Features
 
-- **Flower** — Auto-right-clicks tall flowers you're looking at with configurable CPS
+- **Flower** — Auto-right-clicks tall flowers you're looking at
 - **Mushroom** — Auto-attacks red mushrooms you're looking at; tracks brown mushrooms as you look at them
 - **Enchanting** — Auto-solves Chronomatron and Ultrasequencer in the Experimental Table
 - **ChestAssist** — Auto-right-clicks chests you look at with a random delay
