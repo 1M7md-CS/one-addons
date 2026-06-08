@@ -9,6 +9,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SwapAssistModule {
 
+    private static final int POST_SWAP_DELAY = 10;
+
     public final List<SwapEntry> entries = new ArrayList<>();
 
     private final boolean[] prevInSlot = new boolean[9];
@@ -26,18 +28,21 @@ public class SwapAssistModule {
             }
 
             SwapEntry e = entries.get(stepEntry);
+
             if (step == 1) {
                 mc.player.getInventory().setSelectedSlot(e.targetSlot);
                 step = 0;
                 prevInSlot[e.triggerSlot] = false;
                 return;
             }
+
             if (step == 2) {
                 mc.player.getInventory().setSelectedSlot(e.targetSlot);
-                delay = randDelay();
+                delay = POST_SWAP_DELAY;
                 step = 3;
                 return;
             }
+
             if (step == 3) {
                 mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
                 delay = randDelay();
@@ -49,20 +54,23 @@ public class SwapAssistModule {
 
         for (int i = 0; i < entries.size(); i++) {
             SwapEntry e = entries.get(i);
+
             int currentSlot = mc.player.getInventory().getSelectedSlot();
             boolean nowIn = currentSlot == e.triggerSlot;
 
             if (nowIn && !prevInSlot[e.triggerSlot]) {
                 stepEntry = i;
+
                 if (e.triggerInteract) {
                     mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
                 }
+
                 delay = randDelay();
+
                 if (e.targetSlot != e.triggerSlot) {
                     step = e.targetInteract ? 2 : 1;
                 } else {
                     step = e.targetInteract ? 3 : 0;
-                    if (!e.targetInteract) step = 0;
                 }
             }
 
@@ -70,8 +78,20 @@ public class SwapAssistModule {
         }
     }
 
-    public void addEntry(int triggerSlot, boolean triggerInteract, int targetSlot, boolean targetInteract) {
-        entries.add(new SwapEntry(triggerSlot, triggerInteract, targetSlot, targetInteract));
+    public void addEntry(int triggerSlot,
+                         boolean triggerInteract,
+                         int targetSlot,
+                         boolean targetInteract) {
+
+        entries.add(
+                new SwapEntry(
+                        triggerSlot,
+                        triggerInteract,
+                        targetSlot,
+                        targetInteract
+                )
+        );
+
         prevInSlot[triggerSlot] = false;
     }
 
@@ -83,9 +103,14 @@ public class SwapAssistModule {
         }
     }
 
-    public record SwapEntry(int triggerSlot, boolean triggerInteract, int targetSlot, boolean targetInteract) {}
+    public record SwapEntry(
+            int triggerSlot,
+            boolean triggerInteract,
+            int targetSlot,
+            boolean targetInteract
+    ) {}
 
     private static int randDelay() {
-        return ThreadLocalRandom.current().nextInt(0, 3);
+        return ThreadLocalRandom.current().nextInt(1, 3);
     }
 }
