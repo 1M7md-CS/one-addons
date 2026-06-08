@@ -97,12 +97,10 @@ public class OneAddonsScreen extends Screen {
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
-        // ---- Waypoint ----
         drawToggleRow(ctx, left, right, y, mx, my, "\u25C9 Waypoint",
             () -> OneAddons.waypointEnabled, v -> OneAddons.waypointEnabled = v);
         y += ROW_H;
 
-        // keybind editor
         String keyName = keyName(OneAddons.waypointKeyCode);
         String bindText = capturingKey ? "Press a key..." : "Key: " + keyName;
         int bindColor = capturingKey ? C_ACCENT : C_DIM;
@@ -116,12 +114,10 @@ public class OneAddonsScreen extends Screen {
         ctx.fill(left + 20, y, right, y + 1, C_SEPARATOR);
         y += 6;
 
-        // ---- ChestAssist ----
         drawToggleRow(ctx, left, right, y, mx, my, "\u25C9 ChestAssist",
             () -> OneAddons.chestAssistEnabled, v -> OneAddons.chestAssistEnabled = v);
         y += ROW_H;
 
-        // ---- CooldownFix ----
         drawToggleRow(ctx, left, right, y, mx, my, "\u23F1 CooldownFix",
             () -> OneAddons.cooldownFixEnabled, v -> OneAddons.cooldownFixEnabled = v);
         y += ROW_H;
@@ -129,7 +125,6 @@ public class OneAddonsScreen extends Screen {
         ctx.fill(left + 20, y, right, y + 1, C_SEPARATOR);
         y += 6;
 
-        // ---- SwapAssist ----
         drawToggleRow(ctx, left, right, y, mx, my, "\u26CF SwapAssist",
             () -> OneAddons.swapAssistEnabled, v -> OneAddons.swapAssistEnabled = v);
         y += ROW_H;
@@ -140,13 +135,11 @@ public class OneAddonsScreen extends Screen {
                 var e = entries.get(i);
                 int rowY = y;
 
-                // delete button
                 String del = "\u2716";
                 int delX = left + 2;
                 boolean delHover = mx >= delX && mx < delX + 10 && my >= rowY && my < rowY + ROW_H;
                 ctx.drawText(textRenderer, Text.literal(del), delX, rowY + 5, delHover ? C_RED : C_DIM, true);
 
-                // trigger slot
                 String tSlot = "Slot " + e.triggerSlot();
                 int tsX = left + 16;
                 boolean editing = editingSlot != null && editingSlot[0] == i && editingSlot[1] == 0;
@@ -154,18 +147,15 @@ public class OneAddonsScreen extends Screen {
                 if (editing) ctx.fill(tsX - 1, rowY + 1, tsX + textRenderer.getWidth(tSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
                 ctx.drawText(textRenderer, Text.literal(tSlot), tsX, rowY + 5, tsHover ? C_ACCENT : C_ROW_TEXT, true);
 
-                // trigger interact
                 String tInt = e.triggerInteract() ? "[R]" : "[_]";
                 int tiX = tsX + textRenderer.getWidth(tSlot) + 4;
                 boolean tiHover = mx >= tiX && mx < tiX + textRenderer.getWidth(tInt) && my >= rowY && my < rowY + ROW_H;
                 ctx.drawText(textRenderer, Text.literal(tInt), tiX, rowY + 5, tiHover ? C_ACCENT : C_DIM, true);
 
-                // arrow
                 String arrow = " \u2192 ";
                 int arX = tiX + textRenderer.getWidth(tInt);
                 ctx.drawText(textRenderer, Text.literal(arrow), arX, rowY + 5, C_DIM, true);
 
-                // target slot
                 String sSlot = "Slot " + e.targetSlot();
                 int ssX = arX + textRenderer.getWidth(arrow);
                 boolean sediting = editingSlot != null && editingSlot[0] == i && editingSlot[1] == 1;
@@ -173,7 +163,6 @@ public class OneAddonsScreen extends Screen {
                 if (sediting) ctx.fill(ssX - 1, rowY + 1, ssX + textRenderer.getWidth(sSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
                 ctx.drawText(textRenderer, Text.literal(sSlot), ssX, rowY + 5, ssHover ? C_ACCENT : C_ROW_TEXT, true);
 
-                // target interact
                 String sInt = e.targetInteract() ? "[R]" : "[_]";
                 int siX = ssX + textRenderer.getWidth(sSlot) + 4;
                 boolean siHover = mx >= siX && mx < siX + textRenderer.getWidth(sInt) && my >= rowY && my < rowY + ROW_H;
@@ -182,7 +171,6 @@ public class OneAddonsScreen extends Screen {
                 y += ROW_H;
             }
 
-            // Add button
             String addText = editingSlot != null ? "Press 0-8 to set slot" : "+ Add Swap";
             int addX = left + 20;
             int addY2 = y + 2;
@@ -259,7 +247,6 @@ public class OneAddonsScreen extends Screen {
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
-        // Waypoint toggle
         if (inRect(mx, my, left, y, right - left, ROW_H)) {
             OneAddons.waypointEnabled = !OneAddons.waypointEnabled;
             OneAddonsConfig.save();
@@ -267,7 +254,6 @@ public class OneAddonsScreen extends Screen {
         }
         y += ROW_H;
 
-        // Keybind
         String keyName = keyName(OneAddons.waypointKeyCode);
         int bindX = left + 20;
         int bindW = textRenderer.getWidth("Key: " + keyName) + 6;
@@ -281,9 +267,8 @@ public class OneAddonsScreen extends Screen {
             return;
         }
         y += 14;
-        y += 6; // separator
+        y += 6;
 
-        // ChestAssist toggle
         if (inRect(mx, my, left, y, right - left, ROW_H)) {
             OneAddons.chestAssistEnabled = !OneAddons.chestAssistEnabled;
             OneAddonsConfig.save();
@@ -291,7 +276,6 @@ public class OneAddonsScreen extends Screen {
         }
         y += ROW_H;
 
-        // CooldownFix toggle
         if (inRect(mx, my, left, y, right - left, ROW_H)) {
             OneAddons.cooldownFixEnabled = !OneAddons.cooldownFixEnabled;
             OneAddonsConfig.save();
@@ -299,9 +283,8 @@ public class OneAddonsScreen extends Screen {
         }
         y += ROW_H;
 
-        y += 6; // separator
+        y += 6;
 
-        // SwapAssist toggle
         if (inRect(mx, my, left, y, right - left, ROW_H)) {
             OneAddons.swapAssistEnabled = !OneAddons.swapAssistEnabled;
             OneAddonsConfig.save();
@@ -384,8 +367,8 @@ public class OneAddonsScreen extends Screen {
         }
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
-        y += 12; // category name
-        y += 8;  // separator
+        y += 12;
+        y += 8;
         for (Toggle t : toggles) {
             int swX = right - SWITCH_W;
             if (mx >= swX && mx < swX + SWITCH_W && my >= y && my < y + ROW_H) {
