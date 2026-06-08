@@ -59,7 +59,7 @@ public class OneAddonsScreen extends Screen {
         ctx.fill(cx + 1, cy + 1, cx + PANEL_W - 1, cy + PANEL_H - 1, C_BORDER_DARK);
         ctx.fill(cx + 1, cy + 1, cx + PANEL_W - 1, cy + PANEL_H - 1, C_PANEL);
 
-        Text title = Text.literal("\u00A7e\u26A1 OneAddons v1.0");
+        Text title = Text.literal("\u00A7e\u26A1 OneAddons");
         ctx.drawText(textRenderer, title, width / 2 - textRenderer.getWidth(title) / 2, cy + 10, C_TITLE, true);
 
         int tabY = cy + 28;
