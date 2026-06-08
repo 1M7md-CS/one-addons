@@ -1,16 +1,16 @@
 # OneAddons
 
-A client-side Fabric mod for Minecraft 1.21.11 providing automation utilities.
+Client-side Fabric mod for Minecraft 1.21.11 with automation utilities for Hypixel SkyBlock.
 
 ## Features
 
-- **Flower Farming** — Auto-harvest tall flowers within crosshair reach
-- **Mushroom Farming** — Auto-break brown/red mushrooms with cooldown management
-- **Enchanting** — Solves Chronomatron and Ultrasequencer in the Experimental Table
-- **ChestAssist** — One-click chest interaction with configurable delay
-- **SwapAssist** — Auto-swap items between hotbar slots on selection
-- **Waypoints** — Save and manage position waypoints with keybinds
-- **CooldownFix** — Removes the mining cooldown delay (toggleable)
+- **Flower** — Auto-right-clicks tall flowers you're looking at with configurable CPS
+- **Mushroom** — Auto-attacks red mushrooms you're looking at; tracks brown mushrooms as you look at them
+- **Enchanting** — Auto-solves Chronomatron and Ultrasequencer in the Experimental Table
+- **ChestAssist** — Auto-right-clicks chests you look at with a random delay
+- **SwapAssist** — Auto-swaps to a target hotbar slot when you select a trigger slot
+- **Waypoint** — Saves your current position to a JSON file on key press
+- **CooldownFix** — Removes the 5-tick mining cooldown (toggleable)
 
 ## Requirements
 
@@ -22,13 +22,13 @@ A client-side Fabric mod for Minecraft 1.21.11 providing automation utilities.
 ## Installation
 
 1. Install Fabric Loader for Minecraft 1.21.11
-2. Place the OneAddons jar in your `mods/` folder
-3. Ensure Fabric API is also in `mods/`
+2. Put OneAddons.jar in your `mods/` folder
+3. Put Fabric API in `mods/` too
 4. Launch the game
 
 ## Usage
 
-Open the configuration screen with `/oneaddons` in-game. Toggle features on/off and configure keybinds from the UI.
+Open the UI with `/oneaddons` in-game. Toggle features on/off and configure keybinds.
 
 ## Building
 
@@ -36,7 +36,7 @@ Open the configuration screen with `/oneaddons` in-game. Toggle features on/off 
 ./gradlew build
 ```
 
-The compiled jar will be in `build/libs/`.
+Output is in `build/libs/`.
 
 ## License
 
