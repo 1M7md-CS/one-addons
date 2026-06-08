@@ -8,7 +8,7 @@ import net.minecraft.text.Text;
 public class OneAddonsScreen extends Screen {
 
     private static final int PANEL_W = 190;
-    private static final int PANEL_H = 160;
+    private static final int PANEL_H = 200;
     private static final int BORDER_COLOR = 0xFF4C46A6;
     private static final int PANEL_COLOR = 0xF0101117;
 
@@ -16,6 +16,8 @@ public class OneAddonsScreen extends Screen {
     private ButtonWidget mushroomBtn;
     private ButtonWidget enchantingBtn;
     private ButtonWidget autoChestBtn;
+    private ButtonWidget waypointBtn;
+    private ButtonWidget autoDrillBtn;
     public OneAddonsScreen() {
         super(Text.literal("OneAddons"));
     }
@@ -62,10 +64,28 @@ public class OneAddonsScreen extends Screen {
         ).dimensions(cx - 75, cy + 102, 150, 20).build();
         addDrawableChild(autoChestBtn);
 
+        waypointBtn = ButtonWidget.builder(
+            Text.literal("Waypoint: " + (OneAddons.waypointEnabled ? "ON" : "OFF")),
+            btn -> {
+                OneAddons.waypointEnabled = !OneAddons.waypointEnabled;
+                btn.setMessage(Text.literal("Waypoint: " + (OneAddons.waypointEnabled ? "ON" : "OFF")));
+            }
+        ).dimensions(cx - 75, cy + 126, 150, 20).build();
+        addDrawableChild(waypointBtn);
+
+        autoDrillBtn = ButtonWidget.builder(
+            Text.literal("AutoDrill: " + (OneAddons.autoDrillEnabled ? "ON" : "OFF")),
+            btn -> {
+                OneAddons.autoDrillEnabled = !OneAddons.autoDrillEnabled;
+                btn.setMessage(Text.literal("AutoDrill: " + (OneAddons.autoDrillEnabled ? "ON" : "OFF")));
+            }
+        ).dimensions(cx - 75, cy + 150, 150, 20).build();
+        addDrawableChild(autoDrillBtn);
+
         addDrawableChild(ButtonWidget.builder(
             Text.literal("Close"),
             btn -> close()
-        ).dimensions(cx - 35, cy + 126, 70, 20).build());
+        ).dimensions(cx - 35, cy + 174, 70, 20).build());
     }
 
     @Override
