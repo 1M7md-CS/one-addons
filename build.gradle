@@ -42,6 +42,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+tasks.withType(AbstractArchiveTask) {
+    archiveVersion = project.minecraft_version
+}
+
 jar {
     from("LICENSE") {
         rename { "${it}_${project.base.archivesName.get()}" }
