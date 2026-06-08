@@ -4,13 +4,17 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 public class OneAddons implements ClientModInitializer {
 
@@ -18,7 +22,11 @@ public class OneAddons implements ClientModInitializer {
     public static boolean flowerEnabled = false;
     public static boolean mushroomEnabled = false;
     public static boolean autoChestEnabled = false;
+    public static boolean waypointEnabled = false;
+    public static boolean autoDrillEnabled = false;
     private static final Identifier HUD_ID = Identifier.of("oneaddons", "hud");
+
+    private static KeyBinding waypointKey;
 
     private static final int HUD_PAD = 10;
     private static final int HUD_W = 175;
@@ -44,17 +52,24 @@ public class OneAddons implements ClientModInitializer {
     private static final Text ICON_MUSHROOM = Text.literal("❖ ").formatted(Formatting.DARK_PURPLE);
     private static final Text ICON_BOLT = Text.literal("⚡ ").formatted(Formatting.WHITE);
     private static final Text ICON_ENCHANT = Text.literal("✦ ").formatted(Formatting.GOLD);
+    private static final Text ICON_WAYPOINT = Text.literal("◉ ").formatted(Formatting.GREEN);
+    private static final Text ICON_DRILL = Text.literal("⛏ ").formatted(Formatting.GRAY);
+
+    private static final Text LABEL_AUTODRILL = Text.literal("AutoDrill");
 
     private static final Text TITLE_TEXT = Text.literal("OneAddons");
     private static final Text VERSION_TEXT = Text.literal("v1.0");
     private static final Text LABEL_FLOWER = Text.literal("Flower");
     private static final Text LABEL_MUSHROOM = Text.literal("Mushroom");
     private static final Text LABEL_ENCHANTING = Text.literal("Enchanting");
+    private static final Text LABEL_WAYPOINT = Text.literal("Waypoint");
 
     private EnchantingModule enchantingModule;
     private FlowerModule flowerModule;
     private MushroomModule mushroomModule;
     private AutoChestModule autoChestModule;
+    private WaypointModule waypointModule;
+    private AutoDrillModule autoDrillModule;
     private int lastDisplayedCps = -1;
     private String cachedCpsString = "0 CPS";
     private boolean pendingScreenOpen = false;
@@ -65,6 +80,16 @@ public class OneAddons implements ClientModInitializer {
         flowerModule = new FlowerModule();
         mushroomModule = new MushroomModule();
         autoChestModule = new AutoChestModule();
+        waypointModule = new WaypointModule();
+        autoDrillModule = new AutoDrillModule();
+
+        waypointKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.oneaddons.waypoint",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_SEMICOLON,
+                KeyBinding.Category.MISC
+        ));
+
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("oneaddons").executes(ctx -> {
                 pendingScreenOpen = true;
@@ -93,10 +118,16 @@ public class OneAddons implements ClientModInitializer {
         if (flowerEnabled) flowerModule.tick(client);
 
         if (autoChestEnabled) autoChestModule.tick(client);
+
+        if (autoDrillEnabled) autoDrillModule.tick(client);
+
+        if (waypointEnabled && waypointKey.wasPressed()) {
+            waypointModule.saveCurrentPosition();
+        }
     }
 
     private void onHud(DrawContext ctx, RenderTickCounter tickCounter) {
-        if (!flowerEnabled && !mushroomEnabled && !enchantingEnabled) return;
+        if (!flowerEnabled && !mushroomEnabled && !enchantingEnabled && !waypointEnabled && !autoDrillEnabled) return;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || mc.options.hudHidden) return;
@@ -114,6 +145,8 @@ public class OneAddons implements ClientModInitializer {
         if (flowerEnabled) count++;
         if (mushroomEnabled) count++;
         if (enchantingEnabled) count++;
+        if (waypointEnabled) count++;
+        if (autoDrillEnabled) count++;
 
         int hudH = 18 + count * 16;
 
@@ -152,6 +185,22 @@ public class OneAddons implements ClientModInitializer {
             ctx.drawText(mc.textRenderer, ICON_ENCHANT, x + 8, rowY + 2, 0xFFFFFFFF, false);
             ctx.drawText(mc.textRenderer, LABEL_ENCHANTING, x + 19, rowY + 2, C_BODY_TEXT, false);
             int badgeX = x + 19 + mc.textRenderer.getWidth(LABEL_ENCHANTING) + 8;
+            drawStatusBadge(ctx, mc, badgeX, rowY, true, false);
+            rowY += 16;
+        }
+
+        if (waypointEnabled) {
+            ctx.drawText(mc.textRenderer, ICON_WAYPOINT, x + 8, rowY + 2, 0xFFFFFFFF, false);
+            ctx.drawText(mc.textRenderer, LABEL_WAYPOINT, x + 19, rowY + 2, C_BODY_TEXT, false);
+            int badgeX = x + 19 + mc.textRenderer.getWidth(LABEL_WAYPOINT) + 8;
+            drawStatusBadge(ctx, mc, badgeX, rowY, true, false);
+            rowY += 16;
+        }
+
+        if (autoDrillEnabled) {
+            ctx.drawText(mc.textRenderer, ICON_DRILL, x + 8, rowY + 2, 0xFFFFFFFF, false);
+            ctx.drawText(mc.textRenderer, LABEL_AUTODRILL, x + 19, rowY + 2, C_BODY_TEXT, false);
+            int badgeX = x + 19 + mc.textRenderer.getWidth(LABEL_AUTODRILL) + 8;
             drawStatusBadge(ctx, mc, badgeX, rowY, true, false);
         }
     }
