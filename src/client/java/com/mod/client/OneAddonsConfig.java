@@ -39,6 +39,11 @@ public class OneAddonsConfig {
             OneAddons.waypointEnabled = data.waypointEnabled;
             OneAddons.swapAssistEnabled = data.swapAssistEnabled;
             OneAddons.cooldownFixEnabled = data.cooldownFixEnabled;
+            OneAddons.placeOnPositionEnabled = data.placeOnPositionEnabled;
+            OneAddons.placeOnPositionModule.placeSlot = data.placeSlot;
+            OneAddons.placeOnPositionModule.restoreSlot = data.restoreSlot;
+            OneAddons.placeOnPositionModule.placeInteract = data.placeInteract;
+            OneAddons.placeOnPositionModule.restoreInteract = data.restoreInteract;
             OneAddons.waypointKeyCode = data.waypointKeyCode;
 
             OneAddons.swapAssistModule.entries.clear();
@@ -63,6 +68,11 @@ public class OneAddonsConfig {
         data.waypointEnabled = OneAddons.waypointEnabled;
         data.swapAssistEnabled = OneAddons.swapAssistEnabled;
         data.cooldownFixEnabled = OneAddons.cooldownFixEnabled;
+        data.placeOnPositionEnabled = OneAddons.placeOnPositionEnabled;
+        data.placeSlot = OneAddons.placeOnPositionModule.placeSlot;
+        data.restoreSlot = OneAddons.placeOnPositionModule.restoreSlot;
+        data.placeInteract = OneAddons.placeOnPositionModule.placeInteract;
+        data.restoreInteract = OneAddons.placeOnPositionModule.restoreInteract;
         data.waypointKeyCode = OneAddons.waypointKeyCode;
 
         data.swapEntries = new ArrayList<>();
@@ -85,6 +95,11 @@ public class OneAddonsConfig {
         boolean waypointEnabled = false;
         boolean swapAssistEnabled = false;
         boolean cooldownFixEnabled = false;
+        boolean placeOnPositionEnabled = false;
+        int placeSlot = 2;
+        int restoreSlot = 0;
+        boolean placeInteract = true;
+        boolean restoreInteract = false;
         int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
         List<SwapEntryData> swapEntries = new ArrayList<>();
     }
