@@ -16,9 +16,6 @@ public class EnchantingAssistModule {
 
     private static final long CLICK_DELAY_MS = 200L;
     private static final long DELAY_VARIETY_MS = 50L;
-    private static final boolean AUTO_CLOSE = true;
-    private static final int SERUM_COUNT = 0;
-    private static final boolean GET_MAX_XP = false;
 
     private ExperimentHandler handler = null;
     private long lastClick = 0;
@@ -74,7 +71,10 @@ public class EnchantingAssistModule {
             lastClick = now;
         }
 
-        if (handler.shouldClose(AUTO_CLOSE)) {
+        boolean autoClose = handler instanceof ChronomatronHandler
+            ? (OneAddons.autoClose && OneAddons.closeChronoEnabled)
+            : (OneAddons.autoClose && OneAddons.closeUltraEnabled);
+        if (handler.shouldClose(autoClose)) {
             client.player.closeHandledScreen();
             handler = null;
         }
@@ -106,7 +106,7 @@ public class EnchantingAssistModule {
                     && center.getItem() == net.minecraft.item.Items.GLOWSTONE
                     && !slots.get(lastAddedSlot).getStack().hasGlint()
             ) {
-                close = order.size() > (GET_MAX_XP ? 15 : 11 - SERUM_COUNT);
+                close = order.size() >= OneAddons.closeCountChronomatron;
                 hasData = false;
                 return;
             }
@@ -144,6 +144,7 @@ public class EnchantingAssistModule {
 
     private class UltrasequencerHandler extends ExperimentHandler {
         private final ConcurrentHashMap<Integer, Integer> order = new ConcurrentHashMap<>();
+        private boolean glowstoneSeen = false;
 
         @Override
         void observe(GenericContainerScreenHandler handler, List<Slot> slots) {
@@ -151,11 +152,23 @@ public class EnchantingAssistModule {
             if (center.isEmpty()) return;
 
             if (center.getItem() == net.minecraft.item.Items.CLOCK) {
-                hasData = false;
+                // Clock phase: start clicking the saved order
+                if (!order.isEmpty() && !hasData) {
+                    hasData = true;
+                    clicks = 0;
+                }
+                glowstoneSeen = false;
                 return;
             }
 
-            if (hasData || center.getItem() != net.minecraft.item.Items.GLOWSTONE) return;
+            if (center.getItem() != net.minecraft.item.Items.GLOWSTONE) return;
+
+            // Glowstone phase: wait 1 tick for grid to settle, then scan
+            if (!glowstoneSeen) {
+                glowstoneSeen = true;
+                hasData = false;
+                return;
+            }
 
             order.clear();
 
@@ -166,7 +179,6 @@ public class EnchantingAssistModule {
                 }
             }
 
-            hasData = true;
             clicks = 0;
         }
 
@@ -183,7 +195,7 @@ public class EnchantingAssistModule {
 
         @Override
         boolean shouldClose(boolean autoClose) {
-            return autoClose && order.size() > (GET_MAX_XP ? 20 : 9 - SERUM_COUNT);
+            return autoClose && order.size() >= OneAddons.closeCountUltrasequencer;
         }
     }
 
