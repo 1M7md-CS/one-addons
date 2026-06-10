@@ -35,21 +35,29 @@ public class OneAddonsConfig {
             OneAddons.flowerEnabled = data.flowerEnabled;
             OneAddons.mushroomEnabled = data.mushroomEnabled;
             OneAddons.enchantingEnabled = data.enchantingEnabled;
+            OneAddons.autoClose = data.autoClose;
+            OneAddons.closeChronoEnabled = data.closeChronoEnabled;
+            OneAddons.closeUltraEnabled = data.closeUltraEnabled;
+            OneAddons.closeCountChronomatron = data.closeCountChronomatron;
+            OneAddons.closeCountUltrasequencer = data.closeCountUltrasequencer;
             OneAddons.chestAssistEnabled = data.chestAssistEnabled;
             OneAddons.waypointEnabled = data.waypointEnabled;
             OneAddons.swapAssistEnabled = data.swapAssistEnabled;
             OneAddons.cooldownFixEnabled = data.cooldownFixEnabled;
             OneAddons.placeOnPositionEnabled = data.placeOnPositionEnabled;
-            OneAddons.placeOnPositionModule.placeSlot = data.placeSlot;
-            OneAddons.placeOnPositionModule.restoreSlot = data.restoreSlot;
-            OneAddons.placeOnPositionModule.placeInteract = data.placeInteract;
-            OneAddons.placeOnPositionModule.restoreInteract = data.restoreInteract;
             OneAddons.waypointKeyCode = data.waypointKeyCode;
 
             OneAddons.swapAssistModule.entries.clear();
             if (data.swapEntries != null) {
                 for (SwapEntryData sed : data.swapEntries) {
-                    OneAddons.swapAssistModule.addEntry(sed.triggerSlot, sed.triggerInteract, sed.targetSlot, sed.targetInteract);
+                    OneAddons.swapAssistModule.addEntry(sed.triggerSlot, sed.triggerInteract, sed.targetSlot, sed.targetInteract, sed.enabled);
+                }
+            }
+
+            OneAddons.placeOnPositionModule.entries.clear();
+            if (data.placeEntries != null) {
+                for (PlaceEntryData ped : data.placeEntries) {
+                    OneAddons.placeOnPositionModule.addEntry(ped.placeSlot, ped.placeInteract, ped.restoreSlot, ped.restoreInteract, ped.enabled);
                 }
             }
         } catch (Exception e) {
@@ -64,20 +72,26 @@ public class OneAddonsConfig {
         data.flowerEnabled = OneAddons.flowerEnabled;
         data.mushroomEnabled = OneAddons.mushroomEnabled;
         data.enchantingEnabled = OneAddons.enchantingEnabled;
+        data.autoClose = OneAddons.autoClose;
+        data.closeChronoEnabled = OneAddons.closeChronoEnabled;
+        data.closeUltraEnabled = OneAddons.closeUltraEnabled;
+        data.closeCountChronomatron = OneAddons.closeCountChronomatron;
+        data.closeCountUltrasequencer = OneAddons.closeCountUltrasequencer;
         data.chestAssistEnabled = OneAddons.chestAssistEnabled;
         data.waypointEnabled = OneAddons.waypointEnabled;
         data.swapAssistEnabled = OneAddons.swapAssistEnabled;
         data.cooldownFixEnabled = OneAddons.cooldownFixEnabled;
         data.placeOnPositionEnabled = OneAddons.placeOnPositionEnabled;
-        data.placeSlot = OneAddons.placeOnPositionModule.placeSlot;
-        data.restoreSlot = OneAddons.placeOnPositionModule.restoreSlot;
-        data.placeInteract = OneAddons.placeOnPositionModule.placeInteract;
-        data.restoreInteract = OneAddons.placeOnPositionModule.restoreInteract;
         data.waypointKeyCode = OneAddons.waypointKeyCode;
 
         data.swapEntries = new ArrayList<>();
         for (SwapAssistModule.SwapEntry e : OneAddons.swapAssistModule.entries) {
-            data.swapEntries.add(new SwapEntryData(e.triggerSlot(), e.triggerInteract(), e.targetSlot(), e.targetInteract()));
+            data.swapEntries.add(new SwapEntryData(e.triggerSlot(), e.triggerInteract(), e.targetSlot(), e.targetInteract(), e.enabled()));
+        }
+
+        data.placeEntries = new ArrayList<>();
+        for (PlaceOnPositionModule.PlaceEntry e : OneAddons.placeOnPositionModule.entries) {
+            data.placeEntries.add(new PlaceEntryData(e.placeSlot(), e.placeInteract(), e.restoreSlot(), e.restoreInteract(), e.enabled()));
         }
 
         try (FileWriter writer = new FileWriter(FILE)) {
@@ -91,17 +105,19 @@ public class OneAddonsConfig {
         boolean flowerEnabled = false;
         boolean mushroomEnabled = false;
         boolean enchantingEnabled = false;
+        boolean autoClose = true;
+        boolean closeChronoEnabled = true;
+        boolean closeUltraEnabled = true;
+        int closeCountChronomatron = 9;
+        int closeCountUltrasequencer = 9;
         boolean chestAssistEnabled = false;
         boolean waypointEnabled = false;
         boolean swapAssistEnabled = false;
         boolean cooldownFixEnabled = false;
         boolean placeOnPositionEnabled = false;
-        int placeSlot = 2;
-        int restoreSlot = 0;
-        boolean placeInteract = true;
-        boolean restoreInteract = false;
         int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
         List<SwapEntryData> swapEntries = new ArrayList<>();
+        List<PlaceEntryData> placeEntries = new ArrayList<>();
     }
 
     private static class SwapEntryData {
@@ -109,13 +125,32 @@ public class OneAddonsConfig {
         boolean triggerInteract;
         int targetSlot;
         boolean targetInteract;
+        boolean enabled = true;
 
         SwapEntryData() {}
-        SwapEntryData(int triggerSlot, boolean triggerInteract, int targetSlot, boolean targetInteract) {
+        SwapEntryData(int triggerSlot, boolean triggerInteract, int targetSlot, boolean targetInteract, boolean enabled) {
             this.triggerSlot = triggerSlot;
             this.triggerInteract = triggerInteract;
             this.targetSlot = targetSlot;
             this.targetInteract = targetInteract;
+            this.enabled = enabled;
+        }
+    }
+
+    private static class PlaceEntryData {
+        int placeSlot;
+        boolean placeInteract;
+        int restoreSlot;
+        boolean restoreInteract;
+        boolean enabled = true;
+
+        PlaceEntryData() {}
+        PlaceEntryData(int placeSlot, boolean placeInteract, int restoreSlot, boolean restoreInteract, boolean enabled) {
+            this.placeSlot = placeSlot;
+            this.placeInteract = placeInteract;
+            this.restoreSlot = restoreSlot;
+            this.restoreInteract = restoreInteract;
+            this.enabled = enabled;
         }
     }
 }
