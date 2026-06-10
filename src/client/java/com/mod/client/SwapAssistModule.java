@@ -21,13 +21,31 @@ public class SwapAssistModule {
     public void tick(MinecraftClient mc) {
         if (mc.player == null || mc.interactionManager == null) return;
 
+        boolean hasEnabled = false;
+        for (SwapEntry e : entries) {
+            if (e.enabled) { hasEnabled = true; break; }
+        }
+        if (!hasEnabled) {
+            step = 0;
+            return;
+        }
+
         if (step > 0) {
             if (delay > 0) {
                 delay--;
                 return;
             }
 
+            if (stepEntry >= entries.size()) {
+                step = 0;
+                return;
+            }
+
             SwapEntry e = entries.get(stepEntry);
+            if (!e.enabled) {
+                step = 0;
+                return;
+            }
 
             if (step == 1) {
                 mc.player.getInventory().setSelectedSlot(e.targetSlot);
@@ -54,6 +72,7 @@ public class SwapAssistModule {
 
         for (int i = 0; i < entries.size(); i++) {
             SwapEntry e = entries.get(i);
+            if (!e.enabled) continue;
 
             int currentSlot = mc.player.getInventory().getSelectedSlot();
             boolean nowIn = currentSlot == e.triggerSlot;
@@ -81,17 +100,9 @@ public class SwapAssistModule {
     public void addEntry(int triggerSlot,
                          boolean triggerInteract,
                          int targetSlot,
-                         boolean targetInteract) {
-
-        entries.add(
-                new SwapEntry(
-                        triggerSlot,
-                        triggerInteract,
-                        targetSlot,
-                        targetInteract
-                )
-        );
-
+                         boolean targetInteract,
+                         boolean enabled) {
+        entries.add(new SwapEntry(triggerSlot, triggerInteract, targetSlot, targetInteract, enabled));
         prevInSlot[triggerSlot] = false;
     }
 
@@ -107,7 +118,8 @@ public class SwapAssistModule {
             int triggerSlot,
             boolean triggerInteract,
             int targetSlot,
-            boolean targetInteract
+            boolean targetInteract,
+            boolean enabled
     ) {}
 
     private static int randDelay() {
