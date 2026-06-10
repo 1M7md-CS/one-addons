@@ -42,6 +42,7 @@ public class OneAddonsScreen extends Screen {
     private int currentTab = 0;
     private boolean capturingKey = false;
     private int[] editingSlot = null;
+    private int editingPopField = -1;
 
     public OneAddonsScreen() {
         super(Text.literal("OneAddons"));
@@ -128,6 +129,45 @@ public class OneAddonsScreen extends Screen {
         drawToggleRow(ctx, left, right, y, mx, my, "\u26CF SwapAssist",
             () -> OneAddons.swapAssistEnabled, v -> OneAddons.swapAssistEnabled = v);
         y += ROW_H;
+
+        drawToggleRow(ctx, left, right, y, mx, my, "\u2302 PlaceOnPosition",
+            () -> OneAddons.placeOnPositionEnabled, v -> OneAddons.placeOnPositionEnabled = v);
+        y += ROW_H;
+
+        if (OneAddons.placeOnPositionEnabled) {
+            int rowY = y;
+            var mod = OneAddons.placeOnPositionModule;
+
+            String pSlot = "Slot " + mod.placeSlot;
+            int psX = left + 16;
+            boolean psEditing = editingPopField == 0;
+            boolean psHover = psEditing || (mx >= psX && mx < psX + textRenderer.getWidth(pSlot) && my >= rowY && my < rowY + ROW_H);
+            if (psEditing) ctx.fill(psX - 1, rowY + 1, psX + textRenderer.getWidth(pSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
+            ctx.drawText(textRenderer, Text.literal(pSlot), psX, rowY + 5, psHover ? C_ACCENT : C_ROW_TEXT, true);
+
+            String pInt = mod.placeInteract ? "[R]" : "[_]";
+            int piX = psX + textRenderer.getWidth(pSlot) + 4;
+            boolean piHover = mx >= piX && mx < piX + textRenderer.getWidth(pInt) && my >= rowY && my < rowY + ROW_H;
+            ctx.drawText(textRenderer, Text.literal(pInt), piX, rowY + 5, piHover ? C_ACCENT : C_DIM, true);
+
+            String arrow = " \u2192 ";
+            int arX = piX + textRenderer.getWidth(pInt);
+            ctx.drawText(textRenderer, Text.literal(arrow), arX, rowY + 5, C_DIM, true);
+
+            String rSlot = "Slot " + mod.restoreSlot;
+            int rsX = arX + textRenderer.getWidth(arrow);
+            boolean rsEditing = editingPopField == 1;
+            boolean rsHover = rsEditing || (mx >= rsX && mx < rsX + textRenderer.getWidth(rSlot) && my >= rowY && my < rowY + ROW_H);
+            if (rsEditing) ctx.fill(rsX - 1, rowY + 1, rsX + textRenderer.getWidth(rSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
+            ctx.drawText(textRenderer, Text.literal(rSlot), rsX, rowY + 5, rsHover ? C_ACCENT : C_ROW_TEXT, true);
+
+            String rInt = mod.restoreInteract ? "[R]" : "[_]";
+            int riX = rsX + textRenderer.getWidth(rSlot) + 4;
+            boolean riHover = mx >= riX && mx < riX + textRenderer.getWidth(rInt) && my >= rowY && my < rowY + ROW_H;
+            ctx.drawText(textRenderer, Text.literal(rInt), riX, rowY + 5, riHover ? C_ACCENT : C_DIM, true);
+
+            y += ROW_H;
+        }
 
         if (OneAddons.swapAssistEnabled) {
             var entries = OneAddons.swapAssistModule.entries;
@@ -226,6 +266,7 @@ public class OneAddonsScreen extends Screen {
                 currentTab = i;
                 capturingKey = false;
                 editingSlot = null;
+                editingPopField = -1;
                 return true;
             }
         }
@@ -244,6 +285,7 @@ public class OneAddonsScreen extends Screen {
 
     private void clickUtilityTab(int mx, int my, int cx, int y) {
         editingSlot = null;
+        editingPopField = -1;
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
@@ -291,6 +333,52 @@ public class OneAddonsScreen extends Screen {
             return;
         }
         y += ROW_H;
+
+        if (inRect(mx, my, left, y, right - left, ROW_H)) {
+            boolean was = OneAddons.placeOnPositionEnabled;
+            OneAddons.placeOnPositionEnabled = !was;
+            if (!was) OneAddons.placeOnPositionModule.reload();
+            OneAddonsConfig.save();
+            return;
+        }
+        y += ROW_H;
+
+        if (OneAddons.placeOnPositionEnabled) {
+            int rowY = y;
+            var mod = OneAddons.placeOnPositionModule;
+
+            String pSlot = "Slot " + mod.placeSlot;
+            int psX = left + 16;
+            if (inRect(mx, my, psX, rowY, textRenderer.getWidth(pSlot), ROW_H)) {
+                editingPopField = 0;
+                return;
+            }
+
+            String pInt = mod.placeInteract ? "[R]" : "[_]";
+            int piX = psX + textRenderer.getWidth(pSlot) + 4;
+            if (inRect(mx, my, piX, rowY, textRenderer.getWidth(pInt), ROW_H)) {
+                mod.placeInteract = !mod.placeInteract;
+                OneAddonsConfig.save();
+                return;
+            }
+
+            String rSlot = "Slot " + mod.restoreSlot;
+            int rsX = piX + textRenderer.getWidth(pInt) + textRenderer.getWidth(" \u2192 ");
+            if (inRect(mx, my, rsX, rowY, textRenderer.getWidth(rSlot), ROW_H)) {
+                editingPopField = 1;
+                return;
+            }
+
+            String rInt = mod.restoreInteract ? "[R]" : "[_]";
+            int riX = rsX + textRenderer.getWidth(rSlot) + 4;
+            if (inRect(mx, my, riX, rowY, textRenderer.getWidth(rInt), ROW_H)) {
+                mod.restoreInteract = !mod.restoreInteract;
+                OneAddonsConfig.save();
+                return;
+            }
+
+            y += ROW_H;
+        }
 
         if (OneAddons.swapAssistEnabled) {
             var entries = OneAddons.swapAssistModule.entries;
@@ -410,6 +498,25 @@ public class OneAddonsScreen extends Screen {
                     e.targetInteract()
                 ));
                 editingSlot = null;
+                OneAddonsConfig.save();
+                return true;
+            }
+        }
+
+        if (editingPopField != -1) {
+            if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+                editingPopField = -1;
+                return true;
+            }
+            int num = input.key() - GLFW.GLFW_KEY_0;
+            if (num >= 0 && num <= 8) {
+                var mod = OneAddons.placeOnPositionModule;
+                if (editingPopField == 0) {
+                    mod.placeSlot = num;
+                } else {
+                    mod.restoreSlot = num;
+                }
+                editingPopField = -1;
                 OneAddonsConfig.save();
                 return true;
             }
