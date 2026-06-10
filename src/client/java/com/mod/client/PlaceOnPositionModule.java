@@ -25,12 +25,10 @@ public class PlaceOnPositionModule {
     private final List<Waypoint> waypoints = new ArrayList<>();
     private boolean waypointsLoaded = false;
 
-    public int placeSlot = 2;
-    public int restoreSlot = 0;
-    public boolean placeInteract = true;
-    public boolean restoreInteract = false;
+    public final List<PlaceEntry> entries = new ArrayList<>();
 
     private int step = 0;
+    private int stepEntry = 0;
     private int delay = 0;
     private int currentIndex = 0;
     private World lastWorld = null;
@@ -43,19 +41,43 @@ public class PlaceOnPositionModule {
     public void tick(MinecraftClient mc) {
         if (mc.player == null || mc.interactionManager == null) return;
 
+        boolean hasEnabled = false;
+        for (PlaceEntry e : entries) {
+            if (e.enabled) { hasEnabled = true; break; }
+        }
+        if (!hasEnabled) {
+            step = 0;
+            stepEntry = 0;
+            return;
+        }
+
         if (step > 0) {
             if (delay > 0) {
                 delay--;
                 return;
             }
+
+            if (stepEntry >= entries.size()) {
+                step = 0;
+                stepEntry = 0;
+                return;
+            }
+
+            PlaceEntry e = entries.get(stepEntry);
+            if (!e.enabled) {
+                stepEntry++;
+                step = 0;
+                return;
+            }
+
             if (step == 1) {
-                mc.player.getInventory().setSelectedSlot(placeSlot);
+                mc.player.getInventory().setSelectedSlot(e.placeSlot);
                 delay = 1;
                 step = 2;
                 return;
             }
             if (step == 2) {
-                if (placeInteract) {
+                if (e.placeInteract) {
                     mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
                 }
                 delay = randDelay(1, 2);
@@ -63,23 +85,32 @@ public class PlaceOnPositionModule {
                 return;
             }
             if (step == 3) {
-                mc.player.getInventory().setSelectedSlot(restoreSlot);
-                if (restoreInteract) {
+                mc.player.getInventory().setSelectedSlot(e.restoreSlot);
+                if (e.restoreInteract) {
                     delay = 1;
                     step = 4;
                 } else {
+                    stepEntry++;
                     step = 0;
                 }
                 return;
             }
             if (step == 4) {
-                if (restoreInteract) {
+                if (e.restoreInteract) {
                     mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
                 }
+                stepEntry++;
                 step = 0;
                 return;
             }
         }
+
+        if (stepEntry < entries.size()) {
+            step = 1;
+            return;
+        }
+
+        stepEntry = 0;
 
         if (mc.world != lastWorld) {
             lastWorld = mc.world;
@@ -127,12 +158,33 @@ public class PlaceOnPositionModule {
         waypointsLoaded = false;
         currentIndex = 0;
         step = 0;
+        stepEntry = 0;
         delay = 0;
+    }
+
+    public void addEntry(int placeSlot, boolean placeInteract, int restoreSlot, boolean restoreInteract, boolean enabled) {
+        entries.add(new PlaceEntry(placeSlot, placeInteract, restoreSlot, restoreInteract, enabled));
+    }
+
+    public void removeEntry(int index) {
+        if (index >= 0 && index < entries.size()) {
+            entries.remove(index);
+            step = 0;
+            stepEntry = 0;
+        }
     }
 
     private static int randDelay(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
+
+    public record PlaceEntry(
+            int placeSlot,
+            boolean placeInteract,
+            int restoreSlot,
+            boolean restoreInteract,
+            boolean enabled
+    ) {}
 
     private static class Waypoint {
         int x, y, z, r, g, b;
