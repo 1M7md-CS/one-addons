@@ -13,6 +13,11 @@ import org.lwjgl.glfw.GLFW;
 public class OneAddons implements ClientModInitializer {
 
     public static boolean enchantingEnabled = false;
+    public static boolean autoClose = true;
+    public static boolean closeChronoEnabled = true;
+    public static boolean closeUltraEnabled = true;
+    public static int closeCountChronomatron = 9;
+    public static int closeCountUltrasequencer = 9;
     public static boolean flowerEnabled = false;
     public static boolean mushroomEnabled = false;
     public static boolean chestAssistEnabled = false;
