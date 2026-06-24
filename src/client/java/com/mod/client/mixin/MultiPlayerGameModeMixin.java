@@ -1,14 +1,30 @@
 package com.mod.client.mixin;
 
 import com.mod.client.OneAddons;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net.minecraft.client.player.LocalPlayer")
+@Mixin(MultiPlayerGameMode.class)
 public class MultiPlayerGameModeMixin {
-    @ModifyConstant(method = "method_2902", constant = @Constant(intValue = 5))
-    private int removeMiningCooldown(int value) {
-        return OneAddons.cooldownFixEnabled ? 0 : value;
+
+    @Shadow
+    private int destroyDelay;
+
+    @Inject(method = "startDestroyBlock", at = @At("HEAD"))
+    private void onStartDestroyBlock(CallbackInfoReturnable<Boolean> cir) {
+        if (OneAddons.cooldownFixEnabled) {
+            this.destroyDelay = 0;
+        }
+    }
+
+    @Inject(method = "continueDestroyBlock", at = @At("HEAD"))
+    private void onContinueDestroyBlock(CallbackInfoReturnable<Boolean> cir) {
+        if (OneAddons.cooldownFixEnabled) {
+            this.destroyDelay = 0;
+        }
     }
 }
