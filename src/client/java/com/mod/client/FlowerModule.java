@@ -117,7 +117,7 @@ public class FlowerModule {
     }
 
     private boolean isHarvestableBlock(Minecraft mc, BlockPos pos) {
-        return mc.level != null && isTallPlant(mc, pos) && !hasTallPlantAbove(mc, pos);
+        return mc.level != null && isTallPlant(mc, pos) && hasTallPlantAbove(mc, pos);
     }
 
     private boolean hasTallPlantAbove(Minecraft mc, BlockPos pos) {

@@ -73,6 +73,7 @@ public class SwapAssistModule {
         for (int i = 0; i < entries.size(); i++) {
             SwapEntry e = entries.get(i);
             if (!e.enabled) continue;
+            if (e.triggerSlot < 0 || e.triggerSlot > 8 || e.targetSlot < 0 || e.targetSlot > 8) continue;
 
             int currentSlot = mc.player.getInventory().getSelectedSlot();
             boolean nowIn = currentSlot == e.triggerSlot;
@@ -102,6 +103,8 @@ public class SwapAssistModule {
                          int targetSlot,
                          boolean targetInteract,
                          boolean enabled) {
+        triggerSlot = Math.max(0, Math.min(8, triggerSlot));
+        targetSlot = Math.max(0, Math.min(8, targetSlot));
         entries.add(new SwapEntry(triggerSlot, triggerInteract, targetSlot, targetInteract, enabled));
         prevInSlot[triggerSlot] = false;
     }

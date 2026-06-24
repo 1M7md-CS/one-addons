@@ -14,14 +14,14 @@ public class MultiPlayerGameModeMixin {
     @Shadow
     private int destroyDelay;
 
-    @Inject(method = "startDestroyBlock", at = @At("HEAD"))
+    @Inject(method = "startDestroyBlock", at = @At("TAIL"))
     private void onStartDestroyBlock(CallbackInfoReturnable<Boolean> cir) {
         if (OneAddons.cooldownFixEnabled) {
             this.destroyDelay = 0;
         }
     }
 
-    @Inject(method = "continueDestroyBlock", at = @At("HEAD"))
+    @Inject(method = "continueDestroyBlock", at = @At("TAIL"))
     private void onContinueDestroyBlock(CallbackInfoReturnable<Boolean> cir) {
         if (OneAddons.cooldownFixEnabled) {
             this.destroyDelay = 0;

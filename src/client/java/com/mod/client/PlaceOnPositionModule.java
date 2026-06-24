@@ -32,6 +32,7 @@ public class PlaceOnPositionModule {
     private int delay = 0;
     private int currentIndex = 0;
     private Level lastWorld = null;
+    private Waypoint currentTarget = null;
 
     public PlaceOnPositionModule() {
         Minecraft mc = Minecraft.getInstance();
@@ -47,11 +48,19 @@ public class PlaceOnPositionModule {
         }
         if (!hasEnabled) {
             step = 0;
-            stepEntry = 0;
+            stepEntry = entries.size();
+            currentTarget = null;
             return;
         }
 
         if (step > 0) {
+            if (currentTarget != null && !isNear(mc.player.blockPosition(), currentTarget)) {
+                step = 0;
+                stepEntry = entries.size();
+                currentTarget = null;
+                return;
+            }
+
             if (delay > 0) {
                 delay--;
                 return;
@@ -59,7 +68,7 @@ public class PlaceOnPositionModule {
 
             if (stepEntry >= entries.size()) {
                 step = 0;
-                stepEntry = 0;
+                stepEntry = entries.size();
                 return;
             }
 
@@ -105,29 +114,29 @@ public class PlaceOnPositionModule {
             }
         }
 
-        if (stepEntry < entries.size()) {
-            step = 1;
-            return;
-        }
+        if (step == 0 && stepEntry >= entries.size()) {
+            stepEntry = 0;
 
-        stepEntry = 0;
+            if (mc.level != lastWorld) {
+                lastWorld = mc.level;
+                currentIndex = 0;
+            }
 
-        if (mc.level != lastWorld) {
-            lastWorld = mc.level;
-            currentIndex = 0;
-        }
+            loadWaypoints();
+            if (waypoints.isEmpty()) return;
 
-        loadWaypoints();
-        if (waypoints.isEmpty()) return;
-
-        if (currentIndex >= waypoints.size()) currentIndex = 0;
-
-        Waypoint target = waypoints.get(currentIndex);
-        if (isNear(mc.player.blockPosition(), target)) {
-            step = 1;
-            delay = randDelay(1, 2);
-            currentIndex++;
             if (currentIndex >= waypoints.size()) currentIndex = 0;
+
+            Waypoint target = waypoints.get(currentIndex);
+            if (isNear(mc.player.blockPosition(), target)) {
+                currentTarget = target;
+                step = 1;
+                delay = randDelay(1, 2);
+                currentIndex++;
+                if (currentIndex >= waypoints.size()) currentIndex = 0;
+            } else {
+                stepEntry = entries.size();
+            }
         }
     }
 
@@ -158,8 +167,9 @@ public class PlaceOnPositionModule {
         waypointsLoaded = false;
         currentIndex = 0;
         step = 0;
-        stepEntry = 0;
+        stepEntry = entries.size();
         delay = 0;
+        currentTarget = null;
     }
 
     public void addEntry(int placeSlot, boolean placeInteract, int restoreSlot, boolean restoreInteract, boolean enabled) {
@@ -170,7 +180,8 @@ public class PlaceOnPositionModule {
         if (index >= 0 && index < entries.size()) {
             entries.remove(index);
             step = 0;
-            stepEntry = 0;
+            stepEntry = entries.size();
+            currentTarget = null;
         }
     }
 

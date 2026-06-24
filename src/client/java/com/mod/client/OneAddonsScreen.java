@@ -597,10 +597,8 @@ public class OneAddonsScreen extends Screen {
         y += 12;
         y += 8;
 
-        int swX = right - SWITCH_W;
-
-        // Enchanting toggle
-        if (mx >= swX && mx < swX + SWITCH_W && my >= y && my < y + ROW_H) {
+        // Enchanting toggle — full row click like Utility tab
+        if (inRect(mx, my, left, y, right - left, ROW_H)) {
             OneAddons.enchantingEnabled = !OneAddons.enchantingEnabled;
             OneAddonsConfig.save();
             return;
@@ -657,9 +655,6 @@ public class OneAddonsScreen extends Screen {
                 new Toggle("", () -> OneAddons.flowerEnabled, v -> OneAddons.flowerEnabled = v),
                 new Toggle("", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v)
             };
-            case 1 -> toggles = new Toggle[] {
-                new Toggle("", () -> OneAddons.enchantingEnabled, v -> OneAddons.enchantingEnabled = v)
-            };
             default -> toggles = new Toggle[]{};
         }
         int left = cx + PAD;
@@ -667,8 +662,7 @@ public class OneAddonsScreen extends Screen {
         y += 12;
         y += 8;
         for (Toggle t : toggles) {
-            int swX = right - SWITCH_W;
-            if (mx >= swX && mx < swX + SWITCH_W && my >= y && my < y + ROW_H) {
+            if (inRect(mx, my, left, y, right - left, ROW_H)) {
                 t.setter().accept(!t.getter().getAsBoolean());
                 OneAddonsConfig.save();
                 return;

@@ -42,12 +42,13 @@ public class MushroomModule {
                     breakCooldown--;
                     return;
                 }
+                breakAttempts++;
                 mc.gameMode.startDestroyBlock(trackedPos, Direction.UP);
                 mc.player.swing(InteractionHand.MAIN_HAND);
-                breakAttempts++;
                 breakCooldown = ThreadLocalRandom.current().nextInt(
                         MUSHROOM_BREAK_COOLDOWN_MIN, MUSHROOM_BREAK_COOLDOWN_MAX + 1);
-                if (breakAttempts > 5 || state.isAir()) {
+                var stateAfter = mc.level.getBlockState(trackedPos);
+                if (breakAttempts > 5 || stateAfter.isAir()) {
                     trackedPos = null;
                     breakAttempts = 0;
                     breakCooldown = 0;
