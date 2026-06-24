@@ -1,11 +1,12 @@
 package com.mod.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +21,14 @@ public class EnchantingAssistModule {
     private ExperimentHandler handler = null;
     private long lastClick = 0;
 
-    public void tick(MinecraftClient client) {
-        if (client.player == null || client.world == null || client.interactionManager == null) {
+    public void tick(Minecraft client) {
+        if (client.player == null || client.level == null || client.gameMode == null) {
             handler = null;
             return;
         }
 
-        if (!(client.currentScreen instanceof HandledScreen<?> screen)
-                || !(screen.getScreenHandler() instanceof GenericContainerScreenHandler containerHandler)) {
+        if (!(client.screen instanceof AbstractContainerScreen<?> screen)
+                || !(screen.getMenu() instanceof ChestMenu containerHandler)) {
             handler = null;
             return;
         }
@@ -75,7 +76,7 @@ public class EnchantingAssistModule {
             ? (OneAddons.autoClose && OneAddons.closeChronoEnabled)
             : (OneAddons.autoClose && OneAddons.closeUltraEnabled);
         if (handler.shouldClose(autoClose)) {
-            client.player.closeHandledScreen();
+            client.player.closeContainer();
             handler = null;
         }
     }
@@ -88,7 +89,7 @@ public class EnchantingAssistModule {
         protected int clicks = 0;
         protected boolean hasData = false;
 
-        abstract void observe(GenericContainerScreenHandler handler, List<Slot> slots);
+        abstract void observe(ChestMenu handler, List<Slot> slots);
         abstract Integer nextClick();
         abstract boolean shouldClose(boolean autoClose);
     }
@@ -99,23 +100,23 @@ public class EnchantingAssistModule {
         private boolean close = false;
 
         @Override
-        void observe(GenericContainerScreenHandler handler, List<Slot> slots) {
-            var center = slots.get(49).getStack();
+        void observe(ChestMenu handler, List<Slot> slots) {
+            var center = slots.get(49).getItem();
 
             if (lastAddedSlot != -1
-                    && center.getItem() == net.minecraft.item.Items.GLOWSTONE
-                    && !slots.get(lastAddedSlot).getStack().hasGlint()
+                    && center.getItem() == Items.GLOWSTONE
+                    && !slots.get(lastAddedSlot).getItem().hasFoil()
             ) {
                 close = order.size() >= OneAddons.closeCountChronomatron;
                 hasData = false;
                 return;
             }
 
-            if (hasData || center.getItem() != net.minecraft.item.Items.CLOCK) return;
+            if (hasData || center.getItem() != Items.CLOCK) return;
 
             for (int i = 10; i <= 43; i++) {
-                var stack = slots.get(i).getStack();
-                if (!stack.isEmpty() && stack.hasGlint()) {
+                var stack = slots.get(i).getItem();
+                if (!stack.isEmpty() && stack.hasFoil()) {
                     if (order.isEmpty() || order.get(order.size() - 1) != i) {
                         order.add(i);
                         lastAddedSlot = i;
@@ -147,11 +148,11 @@ public class EnchantingAssistModule {
         private boolean glowstoneSeen = false;
 
         @Override
-        void observe(GenericContainerScreenHandler handler, List<Slot> slots) {
-            var center = slots.get(49).getStack();
+        void observe(ChestMenu handler, List<Slot> slots) {
+            var center = slots.get(49).getItem();
             if (center.isEmpty()) return;
 
-            if (center.getItem() == net.minecraft.item.Items.CLOCK) {
+            if (center.getItem() == Items.CLOCK) {
                 // Clock phase: start clicking the saved order
                 if (!order.isEmpty() && !hasData) {
                     hasData = true;
@@ -161,7 +162,7 @@ public class EnchantingAssistModule {
                 return;
             }
 
-            if (center.getItem() != net.minecraft.item.Items.GLOWSTONE) return;
+            if (center.getItem() != Items.GLOWSTONE) return;
 
             // Glowstone phase: wait 1 tick for grid to settle, then scan
             if (!glowstoneSeen) {
@@ -173,7 +174,7 @@ public class EnchantingAssistModule {
             order.clear();
 
             for (int i = 9; i <= 44; i++) {
-                var stack = slots.get(i).getStack();
+                var stack = slots.get(i).getItem();
                 if (!stack.isEmpty() && isNumberedItem(stack)) {
                     order.put(stack.getCount() - 1, i);
                 }
@@ -200,20 +201,20 @@ public class EnchantingAssistModule {
     }
 
     private static boolean isNumberedItem(ItemStack stack) {
-        String name = stack.getName().getString();
+        String name = stack.getHoverName().getString();
         if (name.contains("§")) {
             name = name.replaceAll("§[0-9a-fk-or]", "");
         }
         return name.matches("\\d+");
     }
 
-    private static void leftClick(MinecraftClient client, GenericContainerScreenHandler handler, int slot) {
+    private static void leftClick(Minecraft client, ChestMenu handler, int slot) {
         if (client.player == null) return;
-        client.interactionManager.clickSlot(
-                handler.syncId,
+        client.gameMode.handleContainerInput(
+                handler.containerId,
                 slot,
                 0,
-                SlotActionType.PICKUP,
+                ContainerInput.PICKUP,
                 client.player
         );
     }

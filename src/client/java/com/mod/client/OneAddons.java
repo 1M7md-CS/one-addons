@@ -1,13 +1,13 @@
 package com.mod.client;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class OneAddons implements ClientModInitializer {
@@ -29,7 +29,7 @@ public class OneAddons implements ClientModInitializer {
     public static int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
     private static boolean waypointKeyPrev = false;
 
-    private static KeyBinding cooldownFixKey;
+    private static KeyMapping cooldownFixKey;
 
     private EnchantingAssistModule enchantingAssistModule;
     private FlowerModule flowerModule;
@@ -50,15 +50,14 @@ public class OneAddons implements ClientModInitializer {
         swapAssistModule = new SwapAssistModule();
         placeOnPositionModule = new PlaceOnPositionModule();
 
-        cooldownFixKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        cooldownFixKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.oneaddons.cooldownfix",
-                InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                KeyBinding.Category.MISC
+                new KeyMapping.Category(Identifier.withDefaultNamespace("misc"))
         ));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("oneaddons").executes(ctx -> {
+            dispatcher.register(ClientCommands.literal("oneaddons").executes(ctx -> {
                 pendingScreenOpen = true;
                 return 1;
             }));
@@ -69,7 +68,7 @@ public class OneAddons implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
     }
 
-    private void onTick(MinecraftClient client) {
+    private void onTick(Minecraft client) {
         if (pendingScreenOpen) {
             pendingScreenOpen = false;
             client.setScreen(new OneAddonsScreen());
@@ -87,7 +86,7 @@ public class OneAddons implements ClientModInitializer {
         if (placeOnPositionEnabled) placeOnPositionModule.tick(client);
 
         if (waypointEnabled && waypointKeyCode != GLFW.GLFW_KEY_UNKNOWN) {
-            long window = client.getWindow().getHandle();
+            long window = client.getWindow().handle();
             boolean now = GLFW.glfwGetKey(window, waypointKeyCode) == GLFW.GLFW_PRESS;
             if (now && !waypointKeyPrev) {
                 waypointModule.saveCurrentPosition();
@@ -95,7 +94,7 @@ public class OneAddons implements ClientModInitializer {
             waypointKeyPrev = now;
         }
 
-        if (cooldownFixKey.wasPressed()) {
+        if (cooldownFixKey.consumeClick()) {
             cooldownFixEnabled = !cooldownFixEnabled;
         }
     }

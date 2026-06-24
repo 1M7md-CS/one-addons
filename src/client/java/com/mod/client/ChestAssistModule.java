@@ -2,12 +2,12 @@ package com.mod.client;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 public class ChestAssistModule {
 
@@ -20,17 +20,17 @@ public class ChestAssistModule {
     private BlockPos pendingChestPos = null;
     private BlockHitResult pendingChestHit = null;
 
-    public void tick(MinecraftClient mc) {
+    public void tick(Minecraft mc) {
 
         if (mc.player == null
-                || mc.world == null
-                || mc.interactionManager == null) {
+                || mc.level == null
+                || mc.gameMode == null) {
 
             reset();
             return;
         }
 
-        if (mc.currentScreen != null) {
+        if (mc.screen != null) {
             pendingChestPos = null;
             pendingChestHit = null;
             return;
@@ -38,8 +38,8 @@ public class ChestAssistModule {
 
         tickChestInteract(mc);
 
-        if (mc.crosshairTarget == null
-                || mc.crosshairTarget.getType() != HitResult.Type.BLOCK) {
+        if (mc.hitResult == null
+                || mc.hitResult.getType() != HitResult.Type.BLOCK) {
 
             lastChestPos = null;
             pendingChestPos = null;
@@ -47,14 +47,14 @@ public class ChestAssistModule {
             return;
         }
 
-        BlockHitResult hit = (BlockHitResult) mc.crosshairTarget;
+        BlockHitResult hit = (BlockHitResult) mc.hitResult;
 
         BlockPos pos = hit.getBlockPos();
 
-        var state = mc.world.getBlockState(pos);
+        var state = mc.level.getBlockState(pos);
 
-        if (state.isOf(Blocks.CHEST)
-                || state.isOf(Blocks.TRAPPED_CHEST)) {
+        if (state.is(Blocks.CHEST)
+                || state.is(Blocks.TRAPPED_CHEST)) {
 
             handleChest(pos, hit);
 
@@ -81,7 +81,7 @@ public class ChestAssistModule {
         }
     }
 
-    private void tickChestInteract(MinecraftClient mc) {
+    private void tickChestInteract(Minecraft mc) {
 
         if (pendingChestPos == null) {
             return;
@@ -93,9 +93,9 @@ public class ChestAssistModule {
 
         } else {
 
-            mc.interactionManager.interactBlock(
+            mc.gameMode.useItemOn(
                     mc.player,
-                    Hand.MAIN_HAND,
+                    InteractionHand.MAIN_HAND,
                     pendingChestHit
             );
 

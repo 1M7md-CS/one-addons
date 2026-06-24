@@ -2,12 +2,13 @@ package com.mod.client;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 
 public class OneAddonsScreen extends Screen {
@@ -47,14 +48,14 @@ public class OneAddonsScreen extends Screen {
     private String editingCloseBuf = "";
 
     public OneAddonsScreen() {
-        super(Text.literal("OneAddons"));
+        super(Component.literal("OneAddons"));
     }
 
     private int cx() { return width / 2 - PANEL_W / 2; }
     private int cy() { return height / 2 - PANEL_H / 2; }
 
     @Override
-    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
         ctx.fill(0, 0, width, height, C_OVERLAY);
         int cx = cx(), cy = cy();
 
@@ -62,8 +63,8 @@ public class OneAddonsScreen extends Screen {
         ctx.fill(cx + 1, cy + 1, cx + PANEL_W - 1, cy + PANEL_H - 1, C_BORDER_DARK);
         ctx.fill(cx + 1, cy + 1, cx + PANEL_W - 1, cy + PANEL_H - 1, C_PANEL);
 
-        Text title = Text.literal("\u00A7e\u26A1 OneAddons");
-        ctx.drawText(textRenderer, title, width / 2 - textRenderer.getWidth(title) / 2, cy + 10, C_TITLE, true);
+        Component title = Component.literal("\u00A7e\u26A1 OneAddons");
+        ctx.text(font, title, width / 2 - font.width(title) / 2, cy + 10, C_TITLE, true);
 
         int tabY = cy + 28;
         int tabW = (PANEL_W - 2) / 3;
@@ -73,7 +74,7 @@ public class OneAddonsScreen extends Screen {
             boolean hover = mouseX >= tx && mouseX < tx + tabW - 1 && mouseY >= tabY && mouseY < tabY + TAB_H;
             int bg = i == currentTab ? C_TAB_ACTIVE : (hover ? 0x60303030 : C_TAB_BG);
             ctx.fill(tx, tabY, tx + tabW - 1, tabY + TAB_H, bg);
-            ctx.drawText(textRenderer, Text.literal(tabs[i]), tx + tabW / 2 - textRenderer.getWidth(tabs[i]) / 2, tabY + 5, C_TITLE, true);
+            ctx.text(font, Component.literal(tabs[i]), tx + tabW / 2 - font.width(tabs[i]) / 2, tabY + 5, C_TITLE, true);
         }
 
         int lineY = tabY + TAB_H;
@@ -83,7 +84,7 @@ public class OneAddonsScreen extends Screen {
         drawCurrentTab(ctx, cx, contentY, mouseX, mouseY);
     }
 
-    private void drawCurrentTab(DrawContext ctx, int cx, int y, int mx, int my) {
+    private void drawCurrentTab(GuiGraphicsExtractor ctx, int cx, int y, int mx, int my) {
         switch (currentTab) {
             case 0 -> drawCategory(ctx, cx, y, mx, my, "Plants",
                 new Toggle("\u25C6 Flower", () -> OneAddons.flowerEnabled, v -> OneAddons.flowerEnabled = v),
@@ -94,11 +95,11 @@ public class OneAddonsScreen extends Screen {
         }
     }
 
-    private void drawEnchantTab(DrawContext ctx, int cx, int y, int mx, int my) {
+    private void drawEnchantTab(GuiGraphicsExtractor ctx, int cx, int y, int mx, int my) {
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
-        ctx.drawText(textRenderer, Text.literal("Enchanting"), left, y, C_CATEGORY, true);
+        ctx.text(font, Component.literal("Enchanting"), left, y, C_CATEGORY, true);
         y += 12;
         ctx.fill(left, y, right, y + 1, C_SEPARATOR);
         y += 8;
@@ -112,10 +113,10 @@ public class OneAddonsScreen extends Screen {
         // Auto close
         String acTog = OneAddons.autoClose ? "[✓]" : "[ ]";
         int acTogX = left + 14;
-        boolean acHover = mx >= acTogX && mx < acTogX + textRenderer.getWidth(acTog) && my >= y && my < y + ROW_H;
-        ctx.drawText(textRenderer, Text.literal(acTog), acTogX, y + 5, acHover ? C_ACCENT : (OneAddons.autoClose ? C_SWITCH_ON : C_DIM), true);
-        int acLbX = acTogX + textRenderer.getWidth(acTog) + 4;
-        ctx.drawText(textRenderer, Text.literal("Auto close"), acLbX, y + 5, C_ROW_TEXT, true);
+        boolean acHover = mx >= acTogX && mx < acTogX + font.width(acTog) && my >= y && my < y + ROW_H;
+        ctx.text(font, Component.literal(acTog), acTogX, y + 5, acHover ? C_ACCENT : (OneAddons.autoClose ? C_SWITCH_ON : C_DIM), true);
+        int acLbX = acTogX + font.width(acTog) + 4;
+        ctx.text(font, Component.literal("Auto close"), acLbX, y + 5, C_ROW_TEXT, true);
         y += ROW_H;
 
         // Close entries — exact SwapAssist style
@@ -128,28 +129,28 @@ public class OneAddonsScreen extends Screen {
 
             String tog = en ? "[✓]" : "[ ]";
             int togX = left + 14;
-            boolean togHover = mx >= togX && mx < togX + textRenderer.getWidth(tog) && my >= rowY && my < rowY + ROW_H;
-            ctx.drawText(textRenderer, Text.literal(tog), togX, rowY + 5, togHover ? C_ACCENT : (en ? C_SWITCH_ON : C_DIM), true);
+            boolean togHover = mx >= togX && mx < togX + font.width(tog) && my >= rowY && my < rowY + ROW_H;
+            ctx.text(font, Component.literal(tog), togX, rowY + 5, togHover ? C_ACCENT : (en ? C_SWITCH_ON : C_DIM), true);
 
             String name = isChrono ? "Chronomatron" : "Ultrasequencer";
-            int nmX = togX + textRenderer.getWidth(tog) + 4;
-            ctx.drawText(textRenderer, Text.literal(name), nmX, rowY + 5, C_ROW_TEXT, true);
+            int nmX = togX + font.width(tog) + 4;
+            ctx.text(font, Component.literal(name), nmX, rowY + 5, C_ROW_TEXT, true);
 
             boolean editing = editingCloseField == i;
             String numText = editing
                 ? (editingCloseBuf.isEmpty() ? "__" : editingCloseBuf)
                 : String.valueOf(count);
-            int numX = nmX + textRenderer.getWidth(name) + 6;
-            boolean numHover = editing || (mx >= numX && mx < numX + textRenderer.getWidth(numText) + 4 && my >= rowY && my < rowY + ROW_H);
-            if (editing) ctx.fill(numX - 1, rowY + 1, numX + textRenderer.getWidth(numText) + 3, rowY + ROW_H - 1, 0x307163EF);
-            ctx.drawText(textRenderer, Text.literal(numText), numX + 1, rowY + 5, editing ? C_ACCENT : (numHover ? C_ACCENT : C_ROW_TEXT), true);
+            int numX = nmX + font.width(name) + 6;
+            boolean numHover = editing || (mx >= numX && mx < numX + font.width(numText) + 4 && my >= rowY && my < rowY + ROW_H);
+            if (editing) ctx.fill(numX - 1, rowY + 1, numX + font.width(numText) + 3, rowY + ROW_H - 1, 0x307163EF);
+            ctx.text(font, Component.literal(numText), numX + 1, rowY + 5, editing ? C_ACCENT : (numHover ? C_ACCENT : C_ROW_TEXT), true);
 
             y += ROW_H;
         }
         }
     }
 
-    private void drawUtilityTab(DrawContext ctx, int cx, int y, int mx, int my) {
+    private void drawUtilityTab(GuiGraphicsExtractor ctx, int cx, int y, int mx, int my) {
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
@@ -162,9 +163,9 @@ public class OneAddonsScreen extends Screen {
         int bindColor = capturingKey ? C_ACCENT : C_DIM;
         int bindX = left + 20;
         int bindY = y + 2;
-        boolean bindHover = !capturingKey && mx >= bindX && mx < bindX + textRenderer.getWidth("Key: " + keyName) + 6 && my >= bindY - 1 && my < bindY + 11;
-        if (bindHover) ctx.fill(bindX - 2, bindY - 1, bindX + textRenderer.getWidth("Key: " + keyName) + 4, bindY + 11, C_ROW_HOVER);
-        ctx.drawText(textRenderer, Text.literal(bindText), bindX, bindY, bindColor, true);
+        boolean bindHover = !capturingKey && mx >= bindX && mx < bindX + font.width("Key: " + keyName) + 6 && my >= bindY - 1 && my < bindY + 11;
+        if (bindHover) ctx.fill(bindX - 2, bindY - 1, bindX + font.width("Key: " + keyName) + 4, bindY + 11, C_ROW_HOVER);
+        ctx.text(font, Component.literal(bindText), bindX, bindY, bindColor, true);
         y += 14;
 
         ctx.fill(left + 20, y, right, y + 1, C_SEPARATOR);
@@ -194,40 +195,40 @@ public class OneAddonsScreen extends Screen {
                 String del = "\u2716";
                 int delX = left + 2;
                 boolean delHover = mx >= delX && mx < delX + 10 && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(del), delX, rowY + 5, delHover ? C_RED : C_DIM, true);
+                ctx.text(font, Component.literal(del), delX, rowY + 5, delHover ? C_RED : C_DIM, true);
 
                 String tog = e.enabled() ? "[✓]" : "[ ]";
                 int togX = left + 14;
-                boolean togHover = mx >= togX && mx < togX + textRenderer.getWidth(tog) && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(tog), togX, rowY + 5, togHover ? C_ACCENT : (e.enabled() ? C_SWITCH_ON : C_DIM), true);
+                boolean togHover = mx >= togX && mx < togX + font.width(tog) && my >= rowY && my < rowY + ROW_H;
+                ctx.text(font, Component.literal(tog), togX, rowY + 5, togHover ? C_ACCENT : (e.enabled() ? C_SWITCH_ON : C_DIM), true);
 
                 String tSlot = "Slot " + e.triggerSlot();
-                int tsX = togX + textRenderer.getWidth(tog) + 4;
+                int tsX = togX + font.width(tog) + 4;
                 boolean editing = editingSlot != null && editingSlot[0] == i && editingSlot[1] == 0;
-                boolean tsHover = editing || (mx >= tsX && mx < tsX + textRenderer.getWidth(tSlot) && my >= rowY && my < rowY + ROW_H);
-                if (editing) ctx.fill(tsX - 1, rowY + 1, tsX + textRenderer.getWidth(tSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
-                ctx.drawText(textRenderer, Text.literal(tSlot), tsX, rowY + 5, tsHover ? C_ACCENT : C_ROW_TEXT, true);
+                boolean tsHover = editing || (mx >= tsX && mx < tsX + font.width(tSlot) && my >= rowY && my < rowY + ROW_H);
+                if (editing) ctx.fill(tsX - 1, rowY + 1, tsX + font.width(tSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
+                ctx.text(font, Component.literal(tSlot), tsX, rowY + 5, tsHover ? C_ACCENT : C_ROW_TEXT, true);
 
                 String tInt = e.triggerInteract() ? "[R]" : "[_]";
-                int tiX = tsX + textRenderer.getWidth(tSlot) + 4;
-                boolean tiHover = mx >= tiX && mx < tiX + textRenderer.getWidth(tInt) && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(tInt), tiX, rowY + 5, tiHover ? C_ACCENT : C_DIM, true);
+                int tiX = tsX + font.width(tSlot) + 4;
+                boolean tiHover = mx >= tiX && mx < tiX + font.width(tInt) && my >= rowY && my < rowY + ROW_H;
+                ctx.text(font, Component.literal(tInt), tiX, rowY + 5, tiHover ? C_ACCENT : C_DIM, true);
 
                 String arrow = " \u2192 ";
-                int arX = tiX + textRenderer.getWidth(tInt);
-                ctx.drawText(textRenderer, Text.literal(arrow), arX, rowY + 5, C_DIM, true);
+                int arX = tiX + font.width(tInt);
+                ctx.text(font, Component.literal(arrow), arX, rowY + 5, C_DIM, true);
 
                 String sSlot = "Slot " + e.targetSlot();
-                int ssX = arX + textRenderer.getWidth(arrow);
+                int ssX = arX + font.width(arrow);
                 boolean sediting = editingSlot != null && editingSlot[0] == i && editingSlot[1] == 1;
-                boolean ssHover = sediting || (mx >= ssX && mx < ssX + textRenderer.getWidth(sSlot) && my >= rowY && my < rowY + ROW_H);
-                if (sediting) ctx.fill(ssX - 1, rowY + 1, ssX + textRenderer.getWidth(sSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
-                ctx.drawText(textRenderer, Text.literal(sSlot), ssX, rowY + 5, ssHover ? C_ACCENT : C_ROW_TEXT, true);
+                boolean ssHover = sediting || (mx >= ssX && mx < ssX + font.width(sSlot) && my >= rowY && my < rowY + ROW_H);
+                if (sediting) ctx.fill(ssX - 1, rowY + 1, ssX + font.width(sSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
+                ctx.text(font, Component.literal(sSlot), ssX, rowY + 5, ssHover ? C_ACCENT : C_ROW_TEXT, true);
 
                 String sInt = e.targetInteract() ? "[R]" : "[_]";
-                int siX = ssX + textRenderer.getWidth(sSlot) + 4;
-                boolean siHover = mx >= siX && mx < siX + textRenderer.getWidth(sInt) && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(sInt), siX, rowY + 5, siHover ? C_ACCENT : C_DIM, true);
+                int siX = ssX + font.width(sSlot) + 4;
+                boolean siHover = mx >= siX && mx < siX + font.width(sInt) && my >= rowY && my < rowY + ROW_H;
+                ctx.text(font, Component.literal(sInt), siX, rowY + 5, siHover ? C_ACCENT : C_DIM, true);
 
                 y += ROW_H;
             }
@@ -237,9 +238,9 @@ public class OneAddonsScreen extends Screen {
             String addText = editingSlot != null ? "Press 0-8 to set slot" : "+ Add Swap";
             int addX = left + 20;
             int addH = 16;
-            boolean addHover = editingSlot == null && mx >= addX && mx < addX + textRenderer.getWidth(addText) + 6 && my >= y && my < y + addH;
-            if (addHover) ctx.fill(addX - 2, y, addX + textRenderer.getWidth(addText) + 4, y + addH, C_ROW_HOVER);
-            ctx.drawText(textRenderer, Text.literal(addText), addX, y + 4, editingSlot != null ? C_DIM : C_ACCENT, true);
+            boolean addHover = editingSlot == null && mx >= addX && mx < addX + font.width(addText) + 6 && my >= y && my < y + addH;
+            if (addHover) ctx.fill(addX - 2, y, addX + font.width(addText) + 4, y + addH, C_ROW_HOVER);
+            ctx.text(font, Component.literal(addText), addX, y + 4, editingSlot != null ? C_DIM : C_ACCENT, true);
             y += addH;
         }
 
@@ -259,40 +260,40 @@ public class OneAddonsScreen extends Screen {
                 String del = "\u2716";
                 int delX = left + 2;
                 boolean delHover = mx >= delX && mx < delX + 10 && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(del), delX, rowY + 5, delHover ? C_RED : C_DIM, true);
+                ctx.text(font, Component.literal(del), delX, rowY + 5, delHover ? C_RED : C_DIM, true);
 
                 String tog = e.enabled() ? "[✓]" : "[ ]";
                 int togX = left + 14;
-                boolean togHover = mx >= togX && mx < togX + textRenderer.getWidth(tog) && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(tog), togX, rowY + 5, togHover ? C_ACCENT : (e.enabled() ? C_SWITCH_ON : C_DIM), true);
+                boolean togHover = mx >= togX && mx < togX + font.width(tog) && my >= rowY && my < rowY + ROW_H;
+                ctx.text(font, Component.literal(tog), togX, rowY + 5, togHover ? C_ACCENT : (e.enabled() ? C_SWITCH_ON : C_DIM), true);
 
                 String pSlot = "Slot " + e.placeSlot();
-                int psX = togX + textRenderer.getWidth(tog) + 4;
+                int psX = togX + font.width(tog) + 4;
                 boolean psEditing = editingPlaceField != null && editingPlaceField[0] == i && editingPlaceField[1] == 0;
-                boolean psHover = psEditing || (mx >= psX && mx < psX + textRenderer.getWidth(pSlot) && my >= rowY && my < rowY + ROW_H);
-                if (psEditing) ctx.fill(psX - 1, rowY + 1, psX + textRenderer.getWidth(pSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
-                ctx.drawText(textRenderer, Text.literal(pSlot), psX, rowY + 5, psHover ? C_ACCENT : C_ROW_TEXT, true);
+                boolean psHover = psEditing || (mx >= psX && mx < psX + font.width(pSlot) && my >= rowY && my < rowY + ROW_H);
+                if (psEditing) ctx.fill(psX - 1, rowY + 1, psX + font.width(pSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
+                ctx.text(font, Component.literal(pSlot), psX, rowY + 5, psHover ? C_ACCENT : C_ROW_TEXT, true);
 
                 String pInt = e.placeInteract() ? "[R]" : "[_]";
-                int piX = psX + textRenderer.getWidth(pSlot) + 4;
-                boolean piHover = mx >= piX && mx < piX + textRenderer.getWidth(pInt) && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(pInt), piX, rowY + 5, piHover ? C_ACCENT : C_DIM, true);
+                int piX = psX + font.width(pSlot) + 4;
+                boolean piHover = mx >= piX && mx < piX + font.width(pInt) && my >= rowY && my < rowY + ROW_H;
+                ctx.text(font, Component.literal(pInt), piX, rowY + 5, piHover ? C_ACCENT : C_DIM, true);
 
                 String arrow = " \u2192 ";
-                int arX = piX + textRenderer.getWidth(pInt);
-                ctx.drawText(textRenderer, Text.literal(arrow), arX, rowY + 5, C_DIM, true);
+                int arX = piX + font.width(pInt);
+                ctx.text(font, Component.literal(arrow), arX, rowY + 5, C_DIM, true);
 
                 String rSlot = "Slot " + e.restoreSlot();
-                int rsX = arX + textRenderer.getWidth(arrow);
+                int rsX = arX + font.width(arrow);
                 boolean rsEditing = editingPlaceField != null && editingPlaceField[0] == i && editingPlaceField[1] == 1;
-                boolean rsHover = rsEditing || (mx >= rsX && mx < rsX + textRenderer.getWidth(rSlot) && my >= rowY && my < rowY + ROW_H);
-                if (rsEditing) ctx.fill(rsX - 1, rowY + 1, rsX + textRenderer.getWidth(rSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
-                ctx.drawText(textRenderer, Text.literal(rSlot), rsX, rowY + 5, rsHover ? C_ACCENT : C_ROW_TEXT, true);
+                boolean rsHover = rsEditing || (mx >= rsX && mx < rsX + font.width(rSlot) && my >= rowY && my < rowY + ROW_H);
+                if (rsEditing) ctx.fill(rsX - 1, rowY + 1, rsX + font.width(rSlot) + 1, rowY + ROW_H - 1, 0x307163EF);
+                ctx.text(font, Component.literal(rSlot), rsX, rowY + 5, rsHover ? C_ACCENT : C_ROW_TEXT, true);
 
                 String rInt = e.restoreInteract() ? "[R]" : "[_]";
-                int riX = rsX + textRenderer.getWidth(rSlot) + 4;
-                boolean riHover = mx >= riX && mx < riX + textRenderer.getWidth(rInt) && my >= rowY && my < rowY + ROW_H;
-                ctx.drawText(textRenderer, Text.literal(rInt), riX, rowY + 5, riHover ? C_ACCENT : C_DIM, true);
+                int riX = rsX + font.width(rSlot) + 4;
+                boolean riHover = mx >= riX && mx < riX + font.width(rInt) && my >= rowY && my < rowY + ROW_H;
+                ctx.text(font, Component.literal(rInt), riX, rowY + 5, riHover ? C_ACCENT : C_DIM, true);
 
                 y += ROW_H;
             }
@@ -302,17 +303,17 @@ public class OneAddonsScreen extends Screen {
             String addText = editingPlaceField != null ? "Press 0-8 to set slot" : "+ Add Place";
             int addX = left + 20;
             int addH = 16;
-            boolean addHover = editingPlaceField == null && mx >= addX && mx < addX + textRenderer.getWidth(addText) + 6 && my >= y && my < y + addH;
-            if (addHover) ctx.fill(addX - 2, y, addX + textRenderer.getWidth(addText) + 4, y + addH, C_ROW_HOVER);
-            ctx.drawText(textRenderer, Text.literal(addText), addX, y + 4, editingPlaceField != null ? C_DIM : C_ACCENT, true);
+            boolean addHover = editingPlaceField == null && mx >= addX && mx < addX + font.width(addText) + 6 && my >= y && my < y + addH;
+            if (addHover) ctx.fill(addX - 2, y, addX + font.width(addText) + 4, y + addH, C_ROW_HOVER);
+            ctx.text(font, Component.literal(addText), addX, y + 4, editingPlaceField != null ? C_DIM : C_ACCENT, true);
             y += addH;
         }
     }
 
-    private void drawToggleRow(DrawContext ctx, int left, int right, int y, int mx, int my, String label, BooleanSupplier getter, Consumer<Boolean> setter) {
+    private void drawToggleRow(GuiGraphicsExtractor ctx, int left, int right, int y, int mx, int my, String label, BooleanSupplier getter, Consumer<Boolean> setter) {
         boolean hover = mx >= left && mx < right && my >= y && my < y + ROW_H;
         if (hover) ctx.fill(left, y, right, y + ROW_H, C_ROW_HOVER);
-        ctx.drawText(textRenderer, Text.literal(label), left + 2, y + 5, C_ROW_TEXT, true);
+        ctx.text(font, Component.literal(label), left + 2, y + 5, C_ROW_TEXT, true);
 
         int swX = right - SWITCH_W;
         int swY = y + (ROW_H - SWITCH_H) / 2;
@@ -325,11 +326,11 @@ public class OneAddonsScreen extends Screen {
         ctx.fill(knobX, swY, knobX + 9, swY + SWITCH_H, C_SWITCH_KNOB);
     }
 
-    private void drawCategory(DrawContext ctx, int cx, int y, int mx, int my, String name, Toggle... toggles) {
+    private void drawCategory(GuiGraphicsExtractor ctx, int cx, int y, int mx, int my, String name, Toggle... toggles) {
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
-        ctx.drawText(textRenderer, Text.literal(name), left, y, C_CATEGORY, true);
+        ctx.text(font, Component.literal(name), left, y, C_CATEGORY, true);
         y += 12;
         ctx.fill(left, y, right, y + 1, C_SEPARATOR);
         y += 8;
@@ -341,10 +342,10 @@ public class OneAddonsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        if (click.button() != 0) return super.mouseClicked(click, doubled);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() != 0) return super.mouseClicked(event, doubleClick);
         int cx = cx(), cy = cy();
-        int mX = (int) click.x(), mY = (int) click.y();
+        int mX = (int) event.x(), mY = (int) event.y();
 
         int tabY = cy + 28;
         int tabW = (PANEL_W - 2) / 3;
@@ -373,7 +374,7 @@ public class OneAddonsScreen extends Screen {
         }
 
         clickCategoryTab(mX, mY, cx, contentY);
-        return super.mouseClicked(click, doubled);
+        return super.mouseClicked(event, doubleClick);
     }
 
     private void clickUtilityTab(int mx, int my, int cx, int y) {
@@ -391,7 +392,7 @@ public class OneAddonsScreen extends Screen {
 
         String keyName = keyName(OneAddons.waypointKeyCode);
         int bindX = left + 20;
-        int bindW = textRenderer.getWidth("Key: " + keyName) + 6;
+        int bindW = font.width("Key: " + keyName) + 6;
         if (inRect(mx, my, bindX - 2, y + 1, bindW, 11)) {
             if (OneAddons.waypointKeyCode == GLFW.GLFW_KEY_UNKNOWN) {
                 capturingKey = true;
@@ -442,7 +443,7 @@ public class OneAddonsScreen extends Screen {
 
                 String tog = e.enabled() ? "[✓]" : "[ ]";
                 int togX = left + 14;
-                if (inRect(mx, my, togX, rowY, textRenderer.getWidth(tog), ROW_H)) {
+                if (inRect(mx, my, togX, rowY, font.width(tog), ROW_H)) {
                     OneAddons.swapAssistModule.entries.set(i, new SwapAssistModule.SwapEntry(
                         e.triggerSlot(), e.triggerInteract(), e.targetSlot(), e.targetInteract(), !e.enabled()
                     ));
@@ -451,15 +452,15 @@ public class OneAddonsScreen extends Screen {
                 }
 
                 String tSlot = "Slot " + e.triggerSlot();
-                int tsX = togX + textRenderer.getWidth(tog) + 4;
-                if (inRect(mx, my, tsX, rowY, textRenderer.getWidth(tSlot), ROW_H)) {
+                int tsX = togX + font.width(tog) + 4;
+                if (inRect(mx, my, tsX, rowY, font.width(tSlot), ROW_H)) {
                     editingSlot = new int[]{i, 0};
                     return;
                 }
 
                 String tInt = e.triggerInteract() ? "[R]" : "[_]";
-                int tiX = tsX + textRenderer.getWidth(tSlot) + 4;
-                if (inRect(mx, my, tiX, rowY, textRenderer.getWidth(tInt), ROW_H)) {
+                int tiX = tsX + font.width(tSlot) + 4;
+                if (inRect(mx, my, tiX, rowY, font.width(tInt), ROW_H)) {
                     OneAddons.swapAssistModule.entries.set(i, new SwapAssistModule.SwapEntry(
                         e.triggerSlot(), !e.triggerInteract(), e.targetSlot(), e.targetInteract(), e.enabled()
                     ));
@@ -468,15 +469,15 @@ public class OneAddonsScreen extends Screen {
                 }
 
                 String sSlot = "Slot " + e.targetSlot();
-                int ssX = tiX + textRenderer.getWidth(tInt) + textRenderer.getWidth(" \u2192 ");
-                if (inRect(mx, my, ssX, rowY, textRenderer.getWidth(sSlot), ROW_H)) {
+                int ssX = tiX + font.width(tInt) + font.width(" \u2192 ");
+                if (inRect(mx, my, ssX, rowY, font.width(sSlot), ROW_H)) {
                     editingSlot = new int[]{i, 1};
                     return;
                 }
 
                 String sInt = e.targetInteract() ? "[R]" : "[_]";
-                int siX = ssX + textRenderer.getWidth(sSlot) + 4;
-                if (inRect(mx, my, siX, rowY, textRenderer.getWidth(sInt), ROW_H)) {
+                int siX = ssX + font.width(sSlot) + 4;
+                if (inRect(mx, my, siX, rowY, font.width(sInt), ROW_H)) {
                     OneAddons.swapAssistModule.entries.set(i, new SwapAssistModule.SwapEntry(
                         e.triggerSlot(), e.triggerInteract(), e.targetSlot(), !e.targetInteract(), e.enabled()
                     ));
@@ -491,7 +492,7 @@ public class OneAddonsScreen extends Screen {
 
             String addText = "+ Add Swap";
             int addX = left + 20;
-            int addW = textRenderer.getWidth(addText) + 6;
+            int addW = font.width(addText) + 6;
             if (inRect(mx, my, addX - 2, y, addW, 16)) {
                 OneAddons.swapAssistModule.addEntry(0, false, 0, false, true);
                 OneAddonsConfig.save();
@@ -526,7 +527,7 @@ public class OneAddonsScreen extends Screen {
 
                 String tog = e.enabled() ? "[✓]" : "[ ]";
                 int togX = left + 14;
-                if (inRect(mx, my, togX, rowY, textRenderer.getWidth(tog), ROW_H)) {
+                if (inRect(mx, my, togX, rowY, font.width(tog), ROW_H)) {
                     var mod = OneAddons.placeOnPositionModule;
                     mod.entries.set(i, new PlaceOnPositionModule.PlaceEntry(
                         e.placeSlot(), e.placeInteract(), e.restoreSlot(), e.restoreInteract(), !e.enabled()
@@ -536,15 +537,15 @@ public class OneAddonsScreen extends Screen {
                 }
 
                 String pSlot = "Slot " + e.placeSlot();
-                int psX = togX + textRenderer.getWidth(tog) + 4;
-                if (inRect(mx, my, psX, rowY, textRenderer.getWidth(pSlot), ROW_H)) {
+                int psX = togX + font.width(tog) + 4;
+                if (inRect(mx, my, psX, rowY, font.width(pSlot), ROW_H)) {
                     editingPlaceField = new int[]{i, 0};
                     return;
                 }
 
                 String pInt = e.placeInteract() ? "[R]" : "[_]";
-                int piX = psX + textRenderer.getWidth(pSlot) + 4;
-                if (inRect(mx, my, piX, rowY, textRenderer.getWidth(pInt), ROW_H)) {
+                int piX = psX + font.width(pSlot) + 4;
+                if (inRect(mx, my, piX, rowY, font.width(pInt), ROW_H)) {
                     var mod = OneAddons.placeOnPositionModule;
                     mod.entries.set(i, new PlaceOnPositionModule.PlaceEntry(
                         e.placeSlot(), !e.placeInteract(), e.restoreSlot(), e.restoreInteract(), e.enabled()
@@ -554,15 +555,15 @@ public class OneAddonsScreen extends Screen {
                 }
 
                 String rSlot = "Slot " + e.restoreSlot();
-                int rsX = piX + textRenderer.getWidth(pInt) + textRenderer.getWidth(" \u2192 ");
-                if (inRect(mx, my, rsX, rowY, textRenderer.getWidth(rSlot), ROW_H)) {
+                int rsX = piX + font.width(pInt) + font.width(" \u2192 ");
+                if (inRect(mx, my, rsX, rowY, font.width(rSlot), ROW_H)) {
                     editingPlaceField = new int[]{i, 1};
                     return;
                 }
 
                 String rInt = e.restoreInteract() ? "[R]" : "[_]";
-                int riX = rsX + textRenderer.getWidth(rSlot) + 4;
-                if (inRect(mx, my, riX, rowY, textRenderer.getWidth(rInt), ROW_H)) {
+                int riX = rsX + font.width(rSlot) + 4;
+                if (inRect(mx, my, riX, rowY, font.width(rInt), ROW_H)) {
                     var mod = OneAddons.placeOnPositionModule;
                     mod.entries.set(i, new PlaceOnPositionModule.PlaceEntry(
                         e.placeSlot(), e.placeInteract(), e.restoreSlot(), !e.restoreInteract(), e.enabled()
@@ -578,7 +579,7 @@ public class OneAddonsScreen extends Screen {
 
             String addText = "+ Add Place";
             int addX = left + 20;
-            int addW = textRenderer.getWidth(addText) + 6;
+            int addW = font.width(addText) + 6;
             if (inRect(mx, my, addX - 2, y, addW, 16)) {
                 OneAddons.placeOnPositionModule.addEntry(2, true, 0, false, true);
                 OneAddonsConfig.save();
@@ -611,7 +612,7 @@ public class OneAddonsScreen extends Screen {
         // Auto close toggle
         String acTog = OneAddons.autoClose ? "[✓]" : "[ ]";
         int acTogX = left + 14;
-        if (inRect(mx, my, acTogX, y, textRenderer.getWidth(acTog), ROW_H)) {
+        if (inRect(mx, my, acTogX, y, font.width(acTog), ROW_H)) {
             OneAddons.autoClose = !OneAddons.autoClose;
             OneAddonsConfig.save();
             return;
@@ -626,7 +627,7 @@ public class OneAddonsScreen extends Screen {
 
                 String tog = en ? "[✓]" : "[ ]";
                 int togX = left + 14;
-                if (inRect(mx, my, togX, y, textRenderer.getWidth(tog), ROW_H)) {
+                if (inRect(mx, my, togX, y, font.width(tog), ROW_H)) {
                     if (isChrono) OneAddons.closeChronoEnabled = !OneAddons.closeChronoEnabled;
                     else OneAddons.closeUltraEnabled = !OneAddons.closeUltraEnabled;
                     OneAddonsConfig.save();
@@ -634,11 +635,11 @@ public class OneAddonsScreen extends Screen {
                 }
 
                 String name = isChrono ? "Chronomatron" : "Ultrasequencer";
-                int nmX = togX + textRenderer.getWidth(tog) + 4;
+                int nmX = togX + font.width(tog) + 4;
 
                 String numStr = String.valueOf(count);
-                int numX = nmX + textRenderer.getWidth(name) + 6;
-                if (inRect(mx, my, numX, y, textRenderer.getWidth(numStr) + 4, ROW_H)) {
+                int numX = nmX + font.width(name) + 6;
+                if (inRect(mx, my, numX, y, font.width(numStr) + 4, ROW_H)) {
                     editingCloseField = i;
                     editingCloseBuf = "";
                     return;
@@ -677,12 +678,15 @@ public class OneAddonsScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
         if (capturingKey) {
-            if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
                 OneAddons.waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
             } else {
-                OneAddons.waypointKeyCode = input.key();
+                OneAddons.waypointKeyCode = keyCode;
             }
             capturingKey = false;
             OneAddonsConfig.save();
@@ -690,12 +694,12 @@ public class OneAddonsScreen extends Screen {
         }
 
         if (editingCloseField != -1) {
-            if (input.key() == GLFW.GLFW_KEY_ESCAPE || input.key() == GLFW.GLFW_KEY_ENTER || input.key() == GLFW.GLFW_KEY_KP_ENTER) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
                 editingCloseField = -1;
                 editingCloseBuf = "";
                 return true;
             }
-            int num = input.key() - GLFW.GLFW_KEY_0;
+            int num = keyCode - GLFW.GLFW_KEY_0;
             if (num >= 0 && num <= 9 && editingCloseBuf.length() < 2) {
                 editingCloseBuf += (char)('0' + num);
                 int val = Integer.parseInt(editingCloseBuf);
@@ -707,11 +711,11 @@ public class OneAddonsScreen extends Screen {
         }
 
         if (editingSlot != null) {
-            if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
                 editingSlot = null;
                 return true;
             }
-            int num = input.key() - GLFW.GLFW_KEY_0;
+            int num = keyCode - GLFW.GLFW_KEY_0;
             if (num >= 0 && num <= 8) {
                 int idx = editingSlot[0];
                 boolean isTrigger = editingSlot[1] == 0;
@@ -730,11 +734,11 @@ public class OneAddonsScreen extends Screen {
         }
 
         if (editingPlaceField != null) {
-            if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
                 editingPlaceField = null;
                 return true;
             }
-            int num = input.key() - GLFW.GLFW_KEY_0;
+            int num = keyCode - GLFW.GLFW_KEY_0;
             if (num >= 0 && num <= 8) {
                 int idx = editingPlaceField[0];
                 boolean isPlace = editingPlaceField[1] == 0;
@@ -752,7 +756,7 @@ public class OneAddonsScreen extends Screen {
             }
         }
 
-        return super.keyPressed(input);
+        return super.keyPressed(event);
     }
 
     private static boolean inRect(int mx, int my, int x, int y, int w, int h) {
@@ -761,12 +765,12 @@ public class OneAddonsScreen extends Screen {
 
     private static String keyName(int code) {
         if (code == GLFW.GLFW_KEY_UNKNOWN) return "None";
-        InputUtil.Key key = InputUtil.fromKeyCode(new KeyInput(code, 0, 0));
-        return key.getLocalizedText().getString();
+        var key = InputConstants.getKey(new KeyEvent(code, 0, 0));
+        return key.getDisplayName().getString();
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 

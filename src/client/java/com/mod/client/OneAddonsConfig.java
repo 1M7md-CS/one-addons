@@ -2,7 +2,7 @@ package com.mod.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +14,7 @@ import org.lwjgl.glfw.GLFW;
 public class OneAddonsConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File FILE = new File(MinecraftClient.getInstance().runDirectory, "config/oneaddons/config.json");
+    private static final File FILE = new File(Minecraft.getInstance().gameDirectory, "config/oneaddons/config.json");
 
     private static boolean loaded = false;
 

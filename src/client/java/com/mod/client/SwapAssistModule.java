@@ -1,7 +1,7 @@
 package com.mod.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionHand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ public class SwapAssistModule {
     private int stepEntry = 0;
     private int delay = 0;
 
-    public void tick(MinecraftClient mc) {
-        if (mc.player == null || mc.interactionManager == null) return;
+    public void tick(Minecraft mc) {
+        if (mc.player == null || mc.gameMode == null) return;
 
         boolean hasEnabled = false;
         for (SwapEntry e : entries) {
@@ -62,7 +62,7 @@ public class SwapAssistModule {
             }
 
             if (step == 3) {
-                mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+                mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
                 delay = randDelay();
                 step = 0;
                 prevInSlot[e.triggerSlot] = false;
@@ -81,7 +81,7 @@ public class SwapAssistModule {
                 stepEntry = i;
 
                 if (e.triggerInteract) {
-                    mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+                    mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
                 }
 
                 delay = randDelay();

@@ -3,9 +3,9 @@ package com.mod.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 
 import java.io.File;
 import java.io.FileReader;
@@ -22,27 +22,26 @@ public class WaypointModule {
     private final List<Waypoint> waypoints = new ArrayList<>();
 
     public WaypointModule() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        dataFile = new File(mc.runDirectory, "config/oneaddons/positions.json");
+        Minecraft mc = Minecraft.getInstance();
+        dataFile = new File(mc.gameDirectory, "config/oneaddons/positions.json");
     }
 
     public void saveCurrentPosition() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
 
         loadWaypoints();
 
-        BlockPos pos = client.player.getBlockPos();
+        BlockPos pos = client.player.blockPosition();
         int nextId = waypoints.size() + 1;
 
         waypoints.add(new Waypoint(pos.getX(), pos.getY(), pos.getZ(), 0, 1, 0, nextId));
 
         saveWaypoints();
 
-        client.player.sendMessage(
-                Text.literal("§aSaved waypoint §f#" + nextId
-                        + " §aat §f" + pos.getX() + " " + pos.getY() + " " + pos.getZ()),
-                false
+        client.player.sendSystemMessage(
+                Component.literal("§aSaved waypoint §f#" + nextId
+                        + " §aat §f" + pos.getX() + " " + pos.getY() + " " + pos.getZ())
         );
     }
 

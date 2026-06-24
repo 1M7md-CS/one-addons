@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(targets = "net.minecraft.class_636")
+@Mixin(targets = "net.minecraft.client.player.LocalPlayer")
 public class MultiPlayerGameModeMixin {
     @ModifyConstant(method = "method_2902", constant = @Constant(intValue = 5))
     private int removeMiningCooldown(int value) {

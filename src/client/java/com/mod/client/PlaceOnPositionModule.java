@@ -3,10 +3,10 @@ package com.mod.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 import java.io.File;
 import java.io.FileReader;
@@ -31,15 +31,15 @@ public class PlaceOnPositionModule {
     private int stepEntry = 0;
     private int delay = 0;
     private int currentIndex = 0;
-    private World lastWorld = null;
+    private Level lastWorld = null;
 
     public PlaceOnPositionModule() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        dataFile = new File(mc.runDirectory, "config/oneaddons/placeonposition.json");
+        Minecraft mc = Minecraft.getInstance();
+        dataFile = new File(mc.gameDirectory, "config/oneaddons/placeonposition.json");
     }
 
-    public void tick(MinecraftClient mc) {
-        if (mc.player == null || mc.interactionManager == null) return;
+    public void tick(Minecraft mc) {
+        if (mc.player == null || mc.gameMode == null) return;
 
         boolean hasEnabled = false;
         for (PlaceEntry e : entries) {
@@ -78,7 +78,7 @@ public class PlaceOnPositionModule {
             }
             if (step == 2) {
                 if (e.placeInteract) {
-                    mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+                    mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
                 }
                 delay = randDelay(1, 2);
                 step = 3;
@@ -97,7 +97,7 @@ public class PlaceOnPositionModule {
             }
             if (step == 4) {
                 if (e.restoreInteract) {
-                    mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+                    mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
                 }
                 stepEntry++;
                 step = 0;
@@ -112,8 +112,8 @@ public class PlaceOnPositionModule {
 
         stepEntry = 0;
 
-        if (mc.world != lastWorld) {
-            lastWorld = mc.world;
+        if (mc.level != lastWorld) {
+            lastWorld = mc.level;
             currentIndex = 0;
         }
 
@@ -123,7 +123,7 @@ public class PlaceOnPositionModule {
         if (currentIndex >= waypoints.size()) currentIndex = 0;
 
         Waypoint target = waypoints.get(currentIndex);
-        if (isNear(mc.player.getBlockPos(), target)) {
+        if (isNear(mc.player.blockPosition(), target)) {
             step = 1;
             delay = randDelay(1, 2);
             currentIndex++;

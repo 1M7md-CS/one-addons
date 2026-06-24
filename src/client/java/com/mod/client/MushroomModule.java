@@ -2,13 +2,13 @@ package com.mod.client;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 public class MushroomModule {
 
@@ -19,22 +19,22 @@ public class MushroomModule {
     private int      breakAttempts = 0;
     private int      breakCooldown = 0;
 
-    public void tick(MinecraftClient mc) {
-        if (mc.player == null || mc.world == null || mc.interactionManager == null) {
+    public void tick(Minecraft mc) {
+        if (mc.player == null || mc.level == null || mc.gameMode == null) {
             trackedPos = null;
             return;
         }
 
-        if (mc.currentScreen != null) {
+        if (mc.screen != null) {
             trackedPos = null;
             return;
         }
 
         if (trackedPos != null) {
-            var state = mc.world.getBlockState(trackedPos);
+            var state = mc.level.getBlockState(trackedPos);
 
-            if (state.isOf(Blocks.RED_MUSHROOM)) {
-                if (mc.player.getBlockPos().getSquaredDistance(trackedPos) > 36) {
+            if (state.is(Blocks.RED_MUSHROOM)) {
+                if (mc.player.blockPosition().distSqr(trackedPos) > 36) {
                     trackedPos = null;
                     return;
                 }
@@ -42,8 +42,8 @@ public class MushroomModule {
                     breakCooldown--;
                     return;
                 }
-                mc.interactionManager.attackBlock(trackedPos, Direction.UP);
-                mc.player.swingHand(Hand.MAIN_HAND);
+                mc.gameMode.startDestroyBlock(trackedPos, Direction.UP);
+                mc.player.swing(InteractionHand.MAIN_HAND);
                 breakAttempts++;
                 breakCooldown = ThreadLocalRandom.current().nextInt(
                         MUSHROOM_BREAK_COOLDOWN_MIN, MUSHROOM_BREAK_COOLDOWN_MAX + 1);
@@ -55,11 +55,11 @@ public class MushroomModule {
                 return;
             }
 
-            if (state.isOf(Blocks.BROWN_MUSHROOM)) {
-                if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.BLOCK) {
-                    BlockHitResult hit = (BlockHitResult) mc.crosshairTarget;
+            if (state.is(Blocks.BROWN_MUSHROOM)) {
+                if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK) {
+                    BlockHitResult hit = (BlockHitResult) mc.hitResult;
                     BlockPos newPos = hit.getBlockPos();
-                    if (!newPos.equals(trackedPos) && mc.world.getBlockState(newPos).isOf(Blocks.BROWN_MUSHROOM)) {
+                    if (!newPos.equals(trackedPos) && mc.level.getBlockState(newPos).is(Blocks.BROWN_MUSHROOM)) {
                         trackedPos = newPos;
                         breakAttempts = 0;
                     }
@@ -71,10 +71,10 @@ public class MushroomModule {
             return;
         }
 
-        if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.BLOCK) {
-            BlockHitResult hit = (BlockHitResult) mc.crosshairTarget;
+        if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult hit = (BlockHitResult) mc.hitResult;
             BlockPos pos = hit.getBlockPos();
-            if (mc.world.getBlockState(pos).isOf(Blocks.BROWN_MUSHROOM)) {
+            if (mc.level.getBlockState(pos).is(Blocks.BROWN_MUSHROOM)) {
                 trackedPos = pos;
                 breakAttempts = 0;
             }

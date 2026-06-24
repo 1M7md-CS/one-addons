@@ -2,15 +2,15 @@ package com.mod.client;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class FlowerModule {
 
@@ -35,14 +35,14 @@ public class FlowerModule {
 
     private final ClickTracker clickTracker = new ClickTracker();
 
-    public void tick(MinecraftClient mc) {
+    public void tick(Minecraft mc) {
         long now = System.currentTimeMillis();
         clickTracker.pruneOldClicks(now);
 
-        if (mc.currentScreen != null
+        if (mc.screen != null
                 || mc.player == null
-                || mc.world == null
-                || mc.interactionManager == null) {
+                || mc.level == null
+                || mc.gameMode == null) {
             stopAimingSoft(now);
             return;
         }
@@ -85,7 +85,7 @@ public class FlowerModule {
         hadValidTargetLast = true;
     }
 
-    private void runClickScheduler(MinecraftClient mc, ClientPlayerEntity player, BlockPos pos, long now) {
+    private void runClickScheduler(Minecraft mc, LocalPlayer player, BlockPos pos, long now) {
         int realCps = clickTracker.getCurrentCps();
         if (realCps >= HARD_MAX_CPS) return;
 
@@ -111,27 +111,27 @@ public class FlowerModule {
         return Math.min(fromCredit, MAX_CLICKS_PER_TICK);
     }
 
-    private BlockHitResult getValidBlockTarget(MinecraftClient mc) {
-        if (mc.crosshairTarget == null || mc.crosshairTarget.getType() != HitResult.Type.BLOCK) return null;
-        return (BlockHitResult) mc.crosshairTarget;
+    private BlockHitResult getValidBlockTarget(Minecraft mc) {
+        if (mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK) return null;
+        return (BlockHitResult) mc.hitResult;
     }
 
-    private boolean isHarvestableBlock(MinecraftClient mc, BlockPos pos) {
-        return mc.world != null && isTallPlant(mc, pos) && !hasTallPlantAbove(mc, pos);
+    private boolean isHarvestableBlock(Minecraft mc, BlockPos pos) {
+        return mc.level != null && isTallPlant(mc, pos) && !hasTallPlantAbove(mc, pos);
     }
 
-    private boolean hasTallPlantAbove(MinecraftClient mc, BlockPos pos) {
+    private boolean hasTallPlantAbove(Minecraft mc, BlockPos pos) {
         for (int i = 1; i <= PLANT_CHECK_RANGE_UP; i++) {
-            if (isTallPlant(mc, pos.up(i))) return true;
+            if (isTallPlant(mc, pos.above(i))) return true;
         }
         return false;
     }
 
-    private boolean isTallPlant(MinecraftClient mc, BlockPos pos) {
-        return mc.world != null && mc.world.getBlockState(pos).getBlock() instanceof TallPlantBlock;
+    private boolean isTallPlant(Minecraft mc, BlockPos pos) {
+        return mc.level != null && mc.level.getBlockState(pos).getBlock() instanceof DoublePlantBlock;
     }
 
-    private boolean isWithinReach(ClientPlayerEntity player, BlockPos pos) {
+    private boolean isWithinReach(LocalPlayer player, BlockPos pos) {
         double eyeX = player.getX();
         double eyeY = player.getY() + player.getEyeHeight(player.getPose());
         double eyeZ = player.getZ();
@@ -141,9 +141,9 @@ public class FlowerModule {
         return (dx * dx + dy * dy + dz * dz) <= REACH_DISTANCE_SQ;
     }
 
-    private void performClick(MinecraftClient mc, ClientPlayerEntity player, BlockPos pos) {
-        if (mc.interactionManager == null) return;
-        mc.interactionManager.interactBlock(player, Hand.MAIN_HAND, buildHitResult(pos));
+    private void performClick(Minecraft mc, LocalPlayer player, BlockPos pos) {
+        if (mc.gameMode == null) return;
+        mc.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, buildHitResult(pos));
     }
 
     private BlockHitResult buildHitResult(BlockPos pos) {
@@ -151,7 +151,7 @@ public class FlowerModule {
         double oy = ThreadLocalRandom.current().nextDouble(-HIT_OFFSET_RANGE, HIT_OFFSET_RANGE);
         double oz = ThreadLocalRandom.current().nextDouble(-HIT_OFFSET_RANGE, HIT_OFFSET_RANGE);
         return new BlockHitResult(
-                new Vec3d(pos.getX() + 0.5 + ox, pos.getY() + 0.5 + oy, pos.getZ() + 0.5 + oz),
+                new Vec3(pos.getX() + 0.5 + ox, pos.getY() + 0.5 + oy, pos.getZ() + 0.5 + oz),
                 Direction.UP, pos, false
         );
     }
