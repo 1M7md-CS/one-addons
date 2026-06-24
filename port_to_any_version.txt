@@ -18,13 +18,14 @@ What this mod does:
 - Config saved to config/oneaddons/*.json
 
 Minecraft version-sensitive parts (WILL change each version):
-  a) Mixin targets          -> src/client/java/com/mod/client/mixin/
-  b) Screen API             -> OneAddonsScreen.java
-  c) KeyMapping API         -> compat/KeyBindingCompat.java
-  d) Container interaction  -> compat/ContainerCompat.java
-  e) Entity eye height      -> compat/EntityCompat.java
-  f) Fabric API classes     -> OneAddons.java + build.gradle
-  g) Java version           -> build.gradle + oneaddons.mixins.json
+  a) Mixin targets             -> src/client/java/com/mod/client/mixin/
+  b) Screen overrides (3)      -> OneAddonsScreen.java (top of file)
+  c) Screen compat wrappers    -> compat/ScreenCompat.java, compat/ScreenGraphicsImpl.java
+  d) KeyMapping API            -> compat/KeyBindingCompat.java
+  e) Container interaction     -> compat/ContainerCompat.java
+  f) Entity eye height         -> compat/EntityCompat.java
+  g) Fabric API classes        -> OneAddons.java + build.gradle
+  h) Java version              -> build.gradle + oneaddons.mixins.json
 
 Stable parts (rarely change):
   - All module classes (FlowerModule, MushroomModule, etc.)
@@ -32,7 +33,9 @@ Stable parts (rarely change):
   - WaypointModule.java
   - SwapAssistModule.java
   - PlaceOnPositionModule.java
-  - OneAddonsScreen.java (only the compat bits change)
+  - OneAddonsScreen.java (only the 3 overrides at the top change)
+  - ScreenGraphics.java (interface — never changes)
+  - ScreenGraphicsImpl.java (only the wrapped class name changes)
 
 ================================================================================
  2. PREREQUISITES
@@ -180,84 +183,112 @@ Wraps the player eye height calculation.
 
 After updating, rebuild and ensure FlowerModule compiles.
 
-STEP 3.7 — Fix OneAddonsScreen.java (the hard part)
-====================================================
+STEP 3.7 — Fix ScreenCompat and ScreenGraphicsImpl
+=====================================================
+
+File: src/client/java/com/mod/client/compat/ScreenCompat.java
+
+This is the compat layer for the screen. It contains version-specific
+helpers and the keyName lookup method.
+
+When GuiGraphics class name changes:
+  - Update wrap() parameter type (GuiGraphicsExtractor -> GuiGraphics)
+  - Update ScreenGraphicsImpl to wrap the correct class
+
+When KeyEvent/MouseButtonEvent records change:
+  - Update extract() methods to read fields from the correct type
+  - Or remove entirely if the target version uses plain int params
+
+When InputConstants.getKey signature changes:
+  - 1.21+: InputConstants.getKey(new KeyEvent(code, 0, 0))
+  - 1.20.x: InputConstants.getKey(code, 0) (two int params)
+
+File: src/client/java/com/mod/client/compat/ScreenGraphicsImpl.java
+
+Just changes the wrapped type if GuiGraphics was renamed:
+  - 1.21.4+: wraps GuiGraphicsExtractor
+  - 1.20.x : wraps GuiGraphics (same methods: fill, text)
+
+File: src/client/java/com/mod/client/compat/ScreenGraphics.java
+
+INTERFACE - never changes. Defines fill() and text().
+
+STEP 3.8 — Fix OneAddonsScreen.java (3 thin overrides only)
+=============================================================
 
 File: src/client/java/com/mod/client/OneAddonsScreen.java
 
-This is the most version-sensitive file because Screen method signatures
-change across versions. Three things may differ:
+The screen is now split into two sections:
 
-A) Screen.render override (was render() in 1.20.x, extractRenderState()
-   in 1.21.2+):
+  A) VERSION-SPECIFIC SECTION (lines 69-86): Three thin override methods
+     that ONLY extract parameters from version-specific types and call
+     the stable methods. Everything below line 88 is STABLE.
 
-   1.21.2+ (current):
-     @Override
-     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX,
-                                     int mouseY, float delta) {
-         renderBackground(ctx, mouseX, mouseY, delta);
-         // ... render content ...
-     }
+  B) STABLE SECTION (line 88+): All rendering, click, and key logic uses
+     only plain primitives (int, boolean) and the ScreenGraphics interface.
 
-   1.20.x:
-     @Override
-     public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
-         renderBackground(ctx);
-         // ... render content ...
-     }
+You only need to replace the 3 override methods:
 
-   Note: GuiGraphics was renamed or extracted in 1.21.2+.
-   Also: renderBackground signature changed (with/without mouse coords).
+  --- Render override ---
+  Current (1.21.4+):
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX,
+                                    int mouseY, float delta) {
+        onRender(ScreenCompat.wrap(ctx), mouseX, mouseY, delta);
+    }
 
-B) keyPressed override (was keyPressed(int,int,int), now keyPressed(KeyEvent)):
+  Target (1.20.x):
+    @Override
+    public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
+        // GuiGraphics, not GuiGraphicsExtractor
+        onRender(ScreenCompat.wrap(ctx), mouseX, mouseY, delta);
+    }
 
-   1.21+ (current):
-     @Override
-     public boolean keyPressed(KeyEvent event) {
-         int keyCode = event.key();
-         // ... handle key ...
-         return super.keyPressed(event);
-     }
+  --- mouseClicked override ---
+  Current (1.21+):
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (onMouseClicked((int) event.x(), (int) event.y(), event.button()))
+            return true;
+        return super.mouseClicked(event, doubleClick);
+    }
 
-   1.20.x:
-     @Override
-     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-         // ... handle key ...
-         return super.keyPressed(keyCode, scanCode, modifiers);
-     }
+  Target (1.20.x):
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (onMouseClicked((int) mouseX, (int) mouseY, button)) return true;
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 
-C) mouseClicked override (was mouseClicked(double,double,int), now
-   mouseClicked(MouseButtonEvent, boolean)):
+  --- keyPressed override ---
+  Current (1.21+):
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (onKeyPressed(event.key(), event.scancode(), event.modifiers()))
+            return true;
+        return super.keyPressed(event);
+    }
 
-   1.21+ (current):
-     @Override
-     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-         double mouseX = event.x(), mouseY = event.y();
-         int button = event.button();
-         // ... handle click ...
-         return super.mouseClicked(event, doubleClick);
-     }
+  Target (1.20.x):
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (onKeyPressed(keyCode, scanCode, modifiers)) return true;
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
 
-   1.20.x:
-     @Override
-     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-         // ... handle click ...
-         return super.mouseClicked(mouseX, mouseY, button);
-     }
+Stable methods that NEVER change:
+  - void onRender(ScreenGraphics g, int mouseX, int mouseY, float delta)
+  - boolean onMouseClicked(int mx, int my, int button)
+  - boolean onKeyPressed(int keyCode, int scanCode, int modifiers)
+  - All draw* methods (take ScreenGraphics, never version-specific types)
+  - All click* methods (take primitives only)
+  - isPauseScreen() (stable)
 
-IMPORTANT: Only the method SIGNATURES and the way you extract parameters
-change. The logic inside (what each key/click does) is STABLE.
-You need to rewrite these three override methods for the target version.
+CRITICAL: Keep the class name, constructor, fields, constants, and all
+stable methods exactly as they are. Only touch the 3 overrides at the
+top of the file.
 
-D) Import changes:
-  - In 1.21+ : import net.minecraft.client.gui.GuiGraphicsExtractor;
-  - In 1.20.x: import net.minecraft.client.gui.GuiGraphics;
-  - In 1.21+ : import net.minecraft.client.input.KeyEvent;
-  - In 1.20.x: no special input event classes (just ints)
-
-After updating, rebuild and test all GUI interactions.
-
-STEP 3.8 — Update GLFW references if needed
+STEP 3.9 — Update GLFW references if needed
 ============================================
 
 GLFW constants (GLFW.GLFW_KEY_*) rarely change, but if the target
@@ -269,7 +300,7 @@ GLFW references. Currently used in:
 
 These are usually stable.
 
-STEP 3.9 — Fix imports in OneAddons.java if needed
+STEP 3.10 — Fix imports in OneAddons.java if needed
 ===================================================
 
 File: src/client/java/com/mod/client/OneAddons.java
@@ -289,7 +320,7 @@ Fabric API classes that may change:
 If these packages changed, update the imports. The actual USAGE in the
 file is standard and rarely changes.
 
-STEP 3.10 — OneAddonsConfig.java
+STEP 3.11 — OneAddonsConfig.java
 =================================
 
 File: src/client/java/com/mod/client/OneAddonsConfig.java
@@ -302,7 +333,7 @@ Uses:
 
 This file usually does NOT need changes.
 
-STEP 3.11 — Module files
+STEP 3.12 — Module files
 =========================
 
 These files are purely logic and use stable Minecraft APIs:
@@ -328,11 +359,13 @@ For each version port, touch these files (most likely to least likely):
   MUST change:
   [ ] gradle.properties              -> MC version, loader, API, loom, java
   [ ] oneaddons.mixins.json          -> compatibilityLevel
+  [ ] compat/ScreenCompat.java       -> wrap type, event extract, keyName
+  [ ] compat/ScreenGraphicsImpl.java -> wrapped GuiGraphics class
+  [ ] OneAddonsScreen.java           -> 3 override signatures (top only)
   [ ] compat/KeyBindingCompat.java   -> KeyMapping registration API
   [ ] compat/ContainerCompat.java    -> container click method
   [ ] compat/EntityCompat.java       -> getEyeHeight signature
   [ ] mixin/MultiPlayerGameModeMixin.java -> target class/method/field names
-  [ ] OneAddonsScreen.java           -> 3 override method signatures + imports
 
   MAY need change:
   [ ] OneAddons.java                 -> Fabric API imports
@@ -342,7 +375,8 @@ For each version port, touch these files (most likely to least likely):
   RARELY need change:
   [ ] All module .java files         -> if Minecraft class renamed
   [ ] OneAddonsConfig.java           -> virtually never
-  [ ] Resourece files (lang, mixin json config path) -> never
+  [ ] compat/ScreenGraphics.java     -> interface — virtually never
+  [ ] Resource files (lang, mixin json config path) -> never
 
 ================================================================================
  5. BUILD AND TEST PROCEDURE
@@ -353,7 +387,7 @@ After each change, rebuild with:
 
 Common build errors and fixes:
   - "cannot find symbol" -> import path changed, update import
-  - "method does not override" -> method signature changed, see Step 3.7
+  - "method does not override" -> method signature changed, see Step 3.8
   - "incompatible types" -> API return type changed, adjust variable type
   - mixin failure at runtime -> mixin target invalid, fix @Mixin/@Inject
 
@@ -397,25 +431,28 @@ Pattern 5: Fabric API deprecation
 Pattern 6: Screen method overhaul
   Before: render(GuiGraphics, int, int, float)
   After:  extractRenderState(GuiGraphicsExtractor, int, int, float)
-  Fix:    See Step 3.7 - change override method signature
+  Fix:    See Step 3.8 - change override method signature
 
 Pattern 7: Input event records
   Before: keyPressed(int keyCode, int scanCode, int modifiers)
   After:  keyPressed(KeyEvent event)
-  Fix:    See Step 3.7 - extract fields from record
+  Fix:    See Step 3.8 - extract fields from record
 
 ================================================================================
  7. COMPAT PACKAGE REFERENCE
 ================================================================================
 
 src/client/java/com/mod/client/compat/
-  DestroyDelayAccessor.java  - Interface for destroyDelay field access
-  KeyBindingCompat.java      - KeyMapping creation + registration
-  ContainerCompat.java       - Container slot click
-  EntityCompat.java          - Player eye height
+  DestroyDelayAccessor.java   - Interface for destroyDelay field access
+  KeyBindingCompat.java       - KeyMapping creation + registration
+  ContainerCompat.java        - Container slot click
+  EntityCompat.java           - Player eye height
+  ScreenCompat.java           - Screen rendering/input wrappers + keyName
+  ScreenGraphics.java         - Interface: fill(), text() [never changes]
+  ScreenGraphicsImpl.java     - Wraps GuiGraphics(Extractor) -> ScreenGraphics
 
 When porting, edit these files FIRST. The rest of the codebase calls
-through these wrappers and should not need changes (except the screen).
+through these wrappers and should not need changes.
 
 The mixin (MultiPlayerGameModeMixin) implements DestroyDelayAccessor and
 is the bridge between the compat layer and the Minecraft internals.
@@ -458,6 +495,9 @@ For the target version, look up:
       KeyBindingCompat.java         <- KeyMapping registration wrapper
       ContainerCompat.java          <- Container click wrapper
       EntityCompat.java             <- Entity helper wrapper
+      ScreenCompat.java             <- Screen rendering/input wrappers
+      ScreenGraphics.java           <- Interface: fill(), text()
+      ScreenGraphicsImpl.java       <- GuiGraphics(Extractor) wrapper
 
     mixin/
       MultiPlayerGameModeMixin.java <- Cooldown fix mixin
@@ -478,11 +518,11 @@ If you are an AI tasked with porting this mod:
 
   1. Read THIS FILE completely.
   2. Read gradle.properties for current version numbers.
-  3. Read all 4 files in compat/ to understand the wrappers.
-  4. Read OneAddonsScreen.java (it's long, focus on the 3 overrides:
-     extractRenderState, keyPressed, mouseClicked).
+  3. Read all files in compat/ to understand the wrappers.
+  4. Read OneAddonsScreen.java (it's long, focus on the 3 overrides at
+     the top: extractRenderState, keyPressed, mouseClicked).
   5. Read the mixin file.
-  6. Follow steps 3.1 through 3.11 in order.
+  6. Follow steps 3.1 through 3.12 in order.
   7. After each step, run ./gradlew build to verify.
   8. Fix any errors before moving to the next step.
   9. When all steps compile, do in-game verification.
