@@ -1,13 +1,12 @@
 package com.mod.client;
 
+import com.mod.client.compat.KeyBindingCompat;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class OneAddons implements ClientModInitializer {
@@ -50,11 +49,11 @@ public class OneAddons implements ClientModInitializer {
         swapAssistModule = new SwapAssistModule();
         placeOnPositionModule = new PlaceOnPositionModule();
 
-        cooldownFixKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        cooldownFixKey = KeyBindingCompat.register(
                 "key.oneaddons.cooldownfix",
                 GLFW.GLFW_KEY_UNKNOWN,
-                new KeyMapping.Category(Identifier.withDefaultNamespace("misc"))
-        ));
+                "misc"
+        );
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommands.literal("oneaddons").executes(ctx -> {

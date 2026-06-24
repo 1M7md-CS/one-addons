@@ -1,8 +1,8 @@
 package com.mod.client;
 
+import com.mod.client.compat.ContainerCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -209,13 +209,6 @@ public class EnchantingAssistModule {
     }
 
     private static void leftClick(Minecraft client, ChestMenu handler, int slot) {
-        if (client.player == null) return;
-        client.gameMode.handleContainerInput(
-                handler.containerId,
-                slot,
-                0,
-                ContainerInput.PICKUP,
-                client.player
-        );
+        ContainerCompat.leftClick(handler.containerId, slot);
     }
 }

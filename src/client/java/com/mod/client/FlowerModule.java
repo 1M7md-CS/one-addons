@@ -1,5 +1,7 @@
 package com.mod.client;
 
+import com.mod.client.compat.EntityCompat;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import net.minecraft.client.Minecraft;
@@ -133,7 +135,7 @@ public class FlowerModule {
 
     private boolean isWithinReach(LocalPlayer player, BlockPos pos) {
         double eyeX = player.getX();
-        double eyeY = player.getY() + player.getEyeHeight(player.getPose());
+        double eyeY = EntityCompat.getEyeY(player);
         double eyeZ = player.getZ();
         double dx = eyeX - (pos.getX() + 0.5);
         double dy = eyeY - (pos.getY() + 0.5);
