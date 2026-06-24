@@ -1,6 +1,8 @@
-# OneAddons
+# OneAddons (1.21.11)
 
-Client-side Fabric mod for Minecraft 1.21.11 with automation utilities for Hypixel SkyBlock.
+Client-side Fabric mod for Minecraft 1.21.11 (Yarn mappings) with automation utilities for Hypixel SkyBlock.
+
+> **Branch:** `main` — Original version. See the `port/mc-26.1.2` branch for the updated 26.1.2 Mojang port.
 
 ## Features
 
