@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
-
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Type;
@@ -19,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PlaceOnPositionModule {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final int RANGE = 3;
+    private static final int RANGE = 5;
 
     private final File dataFile;
     private final List<Waypoint> waypoints = new ArrayList<>();
@@ -53,14 +52,18 @@ public class PlaceOnPositionModule {
             return;
         }
 
-        if (step > 0) {
-            if (currentTarget != null && !isNear(mc.player.blockPosition(), currentTarget)) {
-                step = 0;
-                stepEntry = entries.size();
+        if (currentTarget != null && !isNear(mc.player.blockPosition(), currentTarget)) {
+            if (step > 0) {
                 currentTarget = null;
                 return;
             }
+            step = 0;
+            stepEntry = entries.size();
+            currentTarget = null;
+            return;
+        }
 
+        if (step > 0) {
             if (delay > 0) {
                 delay--;
                 return;
@@ -75,7 +78,7 @@ public class PlaceOnPositionModule {
             PlaceEntry e = entries.get(stepEntry);
             if (!e.enabled) {
                 stepEntry++;
-                step = 0;
+                step = stepEntry < entries.size() ? 1 : 0;
                 return;
             }
 
@@ -100,7 +103,7 @@ public class PlaceOnPositionModule {
                     step = 4;
                 } else {
                     stepEntry++;
-                    step = 0;
+                    step = stepEntry < entries.size() ? 1 : 0;
                 }
                 return;
             }
@@ -109,12 +112,12 @@ public class PlaceOnPositionModule {
                     mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
                 }
                 stepEntry++;
-                step = 0;
+                step = stepEntry < entries.size() ? 1 : 0;
                 return;
             }
         }
 
-        if (step == 0 && stepEntry >= entries.size()) {
+        if (step == 0 && currentTarget == null) {
             stepEntry = 0;
 
             if (mc.level != lastWorld) {
