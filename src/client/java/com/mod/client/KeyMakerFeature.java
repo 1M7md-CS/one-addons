@@ -269,7 +269,7 @@ public class KeyMakerFeature {
     }
 
     private boolean readyToClick() {
-        long delay = OneAddons.keyMakerClickDelay;
+        long delay = Math.max(500, OneAddons.keyMakerClickDelay);
         return System.currentTimeMillis() - lastActionTime >= delay;
     }
 
