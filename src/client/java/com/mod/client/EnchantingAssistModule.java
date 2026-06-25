@@ -116,13 +116,11 @@ public class EnchantingAssistModule {
 
             for (int i = 10; i <= 43; i++) {
                 var stack = slots.get(i).getItem();
-                if (!stack.isEmpty() && stack.hasFoil()) {
-                    if (order.isEmpty() || order.get(order.size() - 1) != i) {
-                        order.add(i);
-                        lastAddedSlot = i;
-                        hasData = true;
-                        clicks = 0;
-                    }
+                if (!stack.isEmpty() && stack.hasFoil() && !order.contains(i)) {
+                    order.add(i);
+                    lastAddedSlot = i;
+                    hasData = true;
+                    clicks = 0;
                     break;
                 }
             }

@@ -15,7 +15,6 @@ public class KeyMakerFeature {
 
     private KeyMakerState state = KeyMakerState.IDLE;
     private CurrentCraftType currentType = CurrentCraftType.TUNGSTEN;
-    private boolean bothSwitched = false;
     private int currentSlotIndex = 0;
     private int actionSlot = -1;
     private long lastActionTime = 0;
@@ -31,11 +30,9 @@ public class KeyMakerFeature {
             return;
         }
 
-        if (OneAddons.keyMakerMode != KeyMode.BOTH) {
-            currentType = OneAddons.keyMakerMode == KeyMode.UMBER
-                ? CurrentCraftType.UMBER
-                : CurrentCraftType.TUNGSTEN;
-        }
+        currentType = OneAddons.keyMakerMode == KeyMode.UMBER
+            ? CurrentCraftType.UMBER
+            : CurrentCraftType.TUNGSTEN;
 
         switch (state) {
             case IDLE -> tickIdle(client);
@@ -54,7 +51,6 @@ public class KeyMakerFeature {
         currentType = OneAddons.keyMakerMode == KeyMode.UMBER
             ? CurrentCraftType.UMBER
             : CurrentCraftType.TUNGSTEN;
-        bothSwitched = false;
         currentSlotIndex = 0;
     }
 
@@ -188,16 +184,8 @@ public class KeyMakerFeature {
             client.player.closeContainer();
         }
 
-        KeyMode mode = OneAddons.keyMakerMode;
-
-        if (mode == KeyMode.BOTH && currentType == CurrentCraftType.TUNGSTEN) {
-            currentType = CurrentCraftType.UMBER;
-            bothSwitched = true;
-            state = KeyMakerState.WAIT_FORGE_RETURN;
-        } else {
-            sendNotification(client);
-            reset();
-        }
+        sendNotification(client);
+        reset();
     }
 
     private void handleExhausted(Minecraft client) {
@@ -208,16 +196,9 @@ public class KeyMakerFeature {
     private void sendNotification(Minecraft client) {
         if (client.player == null) return;
 
-        KeyMode mode = OneAddons.keyMakerMode;
-        String msg;
-
-        if (mode == KeyMode.BOTH) {
-            msg = "[KeyMaker] Finished crafting all available Tungsten and Umber Keys.";
-        } else if (mode == KeyMode.TUNGSTEN) {
-            msg = "[KeyMaker] Finished crafting Tungsten Keys.";
-        } else {
-            msg = "[KeyMaker] Finished crafting Umber Keys.";
-        }
+        String msg = OneAddons.keyMakerMode == KeyMode.TUNGSTEN
+            ? "[KeyMaker] Finished crafting Tungsten Keys."
+            : "[KeyMaker] Finished crafting Umber Keys.";
 
         client.player.sendSystemMessage(Component.literal(msg));
     }

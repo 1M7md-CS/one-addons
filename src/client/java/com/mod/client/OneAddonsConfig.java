@@ -122,8 +122,8 @@ public class OneAddonsConfig {
         boolean cooldownFixEnabled = false;
         boolean placeOnPositionEnabled = false;
         boolean keyMakerEnabled = false;
-        String keyMakerMode = "BOTH";
-        int keyMakerClickDelay = 250;
+        String keyMakerMode = "TUNGSTEN";
+        int keyMakerClickDelay = 500;
         int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
         List<SwapEntryData> swapEntries = new ArrayList<>();
         List<PlaceEntryData> placeEntries = new ArrayList<>();

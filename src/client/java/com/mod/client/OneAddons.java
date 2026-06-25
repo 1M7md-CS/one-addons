@@ -25,8 +25,8 @@ public class OneAddons implements ClientModInitializer {
     public static boolean cooldownFixEnabled = false;
     public static boolean placeOnPositionEnabled = false;
     public static boolean keyMakerEnabled = false;
-    public static KeyMode keyMakerMode = KeyMode.BOTH;
-    public static int keyMakerClickDelay = 250;
+    public static KeyMode keyMakerMode = KeyMode.TUNGSTEN;
+    public static int keyMakerClickDelay = 500;
 
     public static int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
     private static boolean waypointKeyPrev = false;

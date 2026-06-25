@@ -20,4 +20,14 @@ public class ScreenGraphicsImpl implements ScreenGraphics {
     public void text(Font font, Component text, int x, int y, int color, boolean shadow) {
         inner.text(font, text, x, y, color, shadow);
     }
+
+    @Override
+    public void enableScissor(int x1, int y1, int x2, int y2) {
+        inner.enableScissor(x1, y1, x2, y2);
+    }
+
+    @Override
+    public void disableScissor() {
+        inner.disableScissor();
+    }
 }

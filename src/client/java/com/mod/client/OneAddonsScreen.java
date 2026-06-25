@@ -37,6 +37,8 @@ public class OneAddonsScreen extends Screen {
     private static final int SWITCH_W = 28;
     private static final int SWITCH_H = 11;
     private static final int BTN_H = 16;
+    private static final int SCROLLBAR_W = 3;
+    private static final int SCROLLBAR_MIN_H = 16;
 
     private int currentTab = 0;
     private boolean capturingKey = false;
@@ -44,6 +46,9 @@ public class OneAddonsScreen extends Screen {
     private int[] editingPlaceField = null;
     private int editingCloseField = -1;
     private String editingCloseBuf = "";
+    private boolean editingKeyMakerDelay = false;
+    private String editingKeyMakerDelayBuf = "";
+    private int scrollOffset = 0;
 
     public OneAddonsScreen() {
         super(Component.literal("OneAddons"));
@@ -71,6 +76,12 @@ public class OneAddonsScreen extends Screen {
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         if (onKeyPressed(event.key(), event.scancode(), event.modifiers())) return true;
         return super.keyPressed(event);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (onMouseScrolled((int) mouseX, (int) mouseY, scrollY)) return true;
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     // =====================================================================
@@ -103,15 +114,30 @@ public class OneAddonsScreen extends Screen {
         g.fill(cx + 1, lineY, cx + PANEL_W - 1, lineY + 1, C_SEPARATOR);
 
         int contentY = lineY + 6;
-        drawCurrentTab(g, cx, contentY, mouseX, mouseY);
+        int contentBottom = cy + PANEL_H - 6;
+
+        g.enableScissor(cx + 1, contentY, cx + PANEL_W - 1, contentBottom);
+        drawCurrentTab(g, cx, contentY - scrollOffset, mouseX, mouseY);
+        g.disableScissor();
+
+        int contentH = contentBottom - contentY;
+        int totalH = computeContentHeight();
+        if (totalH > contentH) {
+            int maxScroll = totalH - contentH;
+            if (scrollOffset > maxScroll) scrollOffset = maxScroll;
+            int thumbH = Math.max(SCROLLBAR_MIN_H, contentH * contentH / totalH);
+            int thumbY = contentY + (contentH - thumbH) * scrollOffset / maxScroll;
+            int sbX = cx + PANEL_W - SCROLLBAR_W - 4;
+            g.fill(sbX, contentY, sbX + SCROLLBAR_W, contentBottom, 0x30FFFFFF);
+            g.fill(sbX, thumbY, sbX + SCROLLBAR_W, thumbY + thumbH, 0x80FFFFFF);
+        }
     }
 
     private void drawCurrentTab(ScreenGraphics g, int cx, int y, int mx, int my) {
         switch (currentTab) {
             case 0 -> drawCategory(g, cx, y, mx, my, "Plants",
                 new Toggle("\u25C6 Flower", () -> OneAddons.flowerEnabled, v -> OneAddons.flowerEnabled = v),
-                new Toggle("\u2746 Mushroom", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v),
-                new Toggle("\u26BF KeyMaker", () -> OneAddons.keyMakerEnabled, v -> OneAddons.keyMakerEnabled = v)
+                new Toggle("\u2746 Mushroom", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v)
             );
             case 1 -> drawEnchantTab(g, cx, y, mx, my);
             default -> drawUtilityTab(g, cx, y, mx, my);
@@ -331,6 +357,32 @@ public class OneAddonsScreen extends Screen {
             g.text(font, Component.literal(addText), addX, y + 4, editingPlaceField != null ? C_DIM : C_ACCENT, true);
             y += addH;
         }
+
+        g.fill(left + 20, y, right, y + 1, C_SEPARATOR);
+        y += 6;
+
+        drawToggleRow(g, left, right, y, mx, my, "\u2692 KeyMaker",
+            () -> OneAddons.keyMakerEnabled, v -> OneAddons.keyMakerEnabled = v);
+        y += ROW_H;
+
+        if (OneAddons.keyMakerEnabled) {
+            String modeStr = "Mode: " + OneAddons.keyMakerMode.name();
+            int modeX = left + 14;
+            boolean modeHover = mx >= modeX && mx < modeX + font.width(modeStr) && my >= y && my < y + ROW_H;
+            g.text(font, Component.literal(modeStr), modeX, y + 5, modeHover ? C_ACCENT : C_ROW_TEXT, true);
+            y += ROW_H;
+
+            boolean editing = editingKeyMakerDelay;
+            String delayStr = editing
+                ? (editingKeyMakerDelayBuf.isEmpty() ? "___" : editingKeyMakerDelayBuf)
+                : "Delay: " + OneAddons.keyMakerClickDelay + "ms";
+            int delayX = left + 14;
+            boolean delayHover = editing || (mx >= delayX && mx < delayX + font.width(delayStr) && my >= y && my < y + ROW_H);
+            int delayColor = editing ? C_ACCENT : (delayHover ? C_ACCENT : C_DIM);
+            if (editing) g.fill(delayX - 1, y + 1, delayX + font.width(delayStr) + 3, y + ROW_H - 1, 0x307163EF);
+            g.text(font, Component.literal(delayStr), delayX, y + 5, delayColor, true);
+            y += ROW_H;
+        }
     }
 
     private void drawToggleRow(ScreenGraphics g, int left, int right, int y, int mx, int my, String label, BooleanSupplier getter, Consumer<Boolean> setter) {
@@ -377,6 +429,8 @@ public class OneAddonsScreen extends Screen {
                 capturingKey = false;
                 editingSlot = null;
                 editingPlaceField = null;
+                editingKeyMakerDelay = false;
+                scrollOffset = 0;
                 return true;
             }
         }
@@ -385,22 +439,71 @@ public class OneAddonsScreen extends Screen {
         int contentY = lineY + 6;
 
         if (currentTab == 1) {
-            clickEnchantTab(mx, my, cx, contentY);
+            clickEnchantTab(mx, my, cx, contentY - scrollOffset);
             return true;
         }
 
         if (currentTab == 2) {
-            clickUtilityTab(mx, my, cx, contentY);
+            clickUtilityTab(mx, my, cx, contentY - scrollOffset);
             return true;
         }
 
-        clickCategoryTab(mx, my, cx, contentY);
+        clickCategoryTab(mx, my, cx, contentY - scrollOffset);
         return false;
+    }
+
+    private boolean onMouseScrolled(int mx, int my, double amount) {
+        int tabY = cy() + 28;
+        int lineY = tabY + TAB_H;
+        int contentY = lineY + 6;
+        int contentBottom = cy() + PANEL_H - 6;
+        if (mx >= cx() + 1 && mx < cx() + PANEL_W - 1 && my >= contentY && my < contentBottom) {
+            int totalH = computeContentHeight();
+            int contentH = contentBottom - contentY;
+            if (totalH > contentH) {
+                int maxScroll = totalH - contentH;
+                scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - amount * 20));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int computeContentHeight() {
+        return switch (currentTab) {
+            case 0 -> 12 + 8 + 2 * ROW_H + 10;
+            case 1 -> {
+                int h = 12 + 8 + ROW_H + 10;
+                if (OneAddons.enchantingEnabled) {
+                    h += ROW_H;
+                    if (OneAddons.autoClose) h += 2 * ROW_H;
+                }
+                yield h;
+            }
+            default -> {
+                int h = ROW_H + 14;
+                h += 6 + ROW_H + ROW_H;
+                h += 6 + ROW_H;
+                if (OneAddons.swapAssistEnabled) {
+                    h += OneAddons.swapAssistModule.entries.size() * ROW_H + 3 + 16;
+                }
+                h += 6 + ROW_H;
+                if (OneAddons.placeOnPositionEnabled) {
+                    h += OneAddons.placeOnPositionModule.entries.size() * ROW_H + 3 + 16;
+                }
+                h += 6 + ROW_H;
+                if (OneAddons.keyMakerEnabled) {
+                    h += ROW_H + ROW_H;
+                }
+                yield h + 10;
+            }
+        };
     }
 
     private void clickUtilityTab(int mx, int my, int cx, int y) {
         editingSlot = null;
         editingPlaceField = null;
+        editingKeyMakerDelay = false;
         int left = cx + PAD;
         int right = cx + PANEL_W - PAD;
 
@@ -608,6 +711,35 @@ public class OneAddonsScreen extends Screen {
             }
             y += 16;
         }
+
+        y += 6;
+
+        if (inRect(mx, my, left, y, right - left, ROW_H)) {
+            OneAddons.keyMakerEnabled = !OneAddons.keyMakerEnabled;
+            OneAddonsConfig.save();
+            return;
+        }
+        y += ROW_H;
+
+        if (OneAddons.keyMakerEnabled) {
+            String modeStr = "Mode: " + OneAddons.keyMakerMode.name();
+            int modeX = left + 14;
+            if (inRect(mx, my, modeX, y, font.width(modeStr), ROW_H)) {
+                OneAddons.keyMakerMode = OneAddons.keyMakerMode == KeyMode.TUNGSTEN ? KeyMode.UMBER : KeyMode.TUNGSTEN;
+                OneAddonsConfig.save();
+                return;
+            }
+            y += ROW_H;
+
+            String delayStr = "Delay: " + OneAddons.keyMakerClickDelay + "ms";
+            int delayX = left + 14;
+            if (!editingKeyMakerDelay && inRect(mx, my, delayX, y, font.width(delayStr), ROW_H)) {
+                editingKeyMakerDelay = true;
+                editingKeyMakerDelayBuf = "";
+                return;
+            }
+            y += ROW_H;
+        }
     }
 
     private void clickEnchantTab(int mx, int my, int cx, int y) {
@@ -674,8 +806,7 @@ public class OneAddonsScreen extends Screen {
         switch (currentTab) {
             case 0 -> toggles = new Toggle[] {
                 new Toggle("", () -> OneAddons.flowerEnabled, v -> OneAddons.flowerEnabled = v),
-                new Toggle("", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v),
-                new Toggle("", () -> OneAddons.keyMakerEnabled, v -> OneAddons.keyMakerEnabled = v)
+                new Toggle("", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v)
             };
             default -> toggles = new Toggle[]{};
         }
@@ -718,6 +849,28 @@ public class OneAddonsScreen extends Screen {
                 if (editingCloseField == 0) OneAddons.closeCountChronomatron = val;
                 else OneAddons.closeCountUltrasequencer = val;
                 OneAddonsConfig.save();
+                return true;
+            }
+        }
+
+        if (editingKeyMakerDelay) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                editingKeyMakerDelay = false;
+                editingKeyMakerDelayBuf = "";
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                if (!editingKeyMakerDelayBuf.isEmpty()) {
+                    OneAddons.keyMakerClickDelay = Math.max(500, Integer.parseInt(editingKeyMakerDelayBuf));
+                    OneAddonsConfig.save();
+                }
+                editingKeyMakerDelay = false;
+                editingKeyMakerDelayBuf = "";
+                return true;
+            }
+            int num = keyCode - GLFW.GLFW_KEY_0;
+            if (num >= 0 && num <= 9 && editingKeyMakerDelayBuf.length() < 4) {
+                editingKeyMakerDelayBuf += (char)('0' + num);
                 return true;
             }
         }
