@@ -6,13 +6,16 @@ Client-side Fabric mod for Minecraft 1.21.11 (Yarn mappings) with automation uti
 
 ## Features
 
-- **Flower** — Auto-right-clicks tall flowers you're looking at
-- **Mushroom** — Auto-attacks red mushrooms you're looking at; tracks brown mushrooms as you look at them
-- **Enchanting** — Auto-solves Chronomatron and Ultrasequencer in the Experimental Table
-- **ChestAssist** — Auto-right-clicks chests you look at with a random delay
-- **SwapAssist** — Auto-swaps to a target hotbar slot when you select a trigger slot
-- **Waypoint** — Saves your current position to a JSON file on key press
-- **CooldownFix** — Removes the 5-tick mining cooldown (toggleable)
+| Module | Description |
+|--------|-------------|
+| **Flower** | Auto-right-clicks tall flowers you're looking at |
+| **Mushroom** | Auto-attacks red mushrooms; tracks brown mushrooms |
+| **Enchanting** | Auto-solves Chronomatron & Ultrasequencer in the Experimental Table |
+| **ChestAssist** | Auto-right-clicks chests with configurable random delay |
+| **SwapAssist** | Auto-swaps to a target hotbar slot when you select a trigger slot |
+| **PlaceOnPosition** | Configurable sequence of slot-swaps & interactions when near a saved waypoint |
+| **Waypoint** | Saves your current position to JSON on key press |
+| **CooldownFix** | Removes the 5-tick mining cooldown (toggleable) |
 
 ## Requirements
 
@@ -30,7 +33,10 @@ Client-side Fabric mod for Minecraft 1.21.11 (Yarn mappings) with automation uti
 
 ## Usage
 
-Open the UI with `/oneaddons` in-game. Toggle features on/off and configure keybinds.
+Open the UI with `/oneaddons` in-game (3 tabs: Utility, Enchant, Plants). Toggle features on/off and configure keybinds.
+
+- Waypoints save to `config/oneaddons/positions.json`
+- Placement sequences save to `config/oneaddons/placeonposition.json`
 
 ## Building
 
