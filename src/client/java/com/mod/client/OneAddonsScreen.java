@@ -110,7 +110,8 @@ public class OneAddonsScreen extends Screen {
         switch (currentTab) {
             case 0 -> drawCategory(g, cx, y, mx, my, "Plants",
                 new Toggle("\u25C6 Flower", () -> OneAddons.flowerEnabled, v -> OneAddons.flowerEnabled = v),
-                new Toggle("\u2746 Mushroom", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v)
+                new Toggle("\u2746 Mushroom", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v),
+                new Toggle("\u26BF KeyMaker", () -> OneAddons.keyMakerEnabled, v -> OneAddons.keyMakerEnabled = v)
             );
             case 1 -> drawEnchantTab(g, cx, y, mx, my);
             default -> drawUtilityTab(g, cx, y, mx, my);
@@ -673,7 +674,8 @@ public class OneAddonsScreen extends Screen {
         switch (currentTab) {
             case 0 -> toggles = new Toggle[] {
                 new Toggle("", () -> OneAddons.flowerEnabled, v -> OneAddons.flowerEnabled = v),
-                new Toggle("", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v)
+                new Toggle("", () -> OneAddons.mushroomEnabled, v -> OneAddons.mushroomEnabled = v),
+                new Toggle("", () -> OneAddons.keyMakerEnabled, v -> OneAddons.keyMakerEnabled = v)
             };
             default -> toggles = new Toggle[]{};
         }
