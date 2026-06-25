@@ -24,6 +24,9 @@ public class OneAddons implements ClientModInitializer {
     public static boolean swapAssistEnabled = false;
     public static boolean cooldownFixEnabled = false;
     public static boolean placeOnPositionEnabled = false;
+    public static boolean keyMakerEnabled = false;
+    public static KeyMode keyMakerMode = KeyMode.BOTH;
+    public static int keyMakerClickDelay = 250;
 
     public static int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
     private static boolean waypointKeyPrev = false;
@@ -37,6 +40,7 @@ public class OneAddons implements ClientModInitializer {
     private WaypointModule waypointModule;
     public static SwapAssistModule swapAssistModule;
     public static PlaceOnPositionModule placeOnPositionModule;
+    private KeyMakerFeature keyMakerFeature;
     private boolean pendingScreenOpen = false;
 
     @Override
@@ -48,6 +52,7 @@ public class OneAddons implements ClientModInitializer {
         waypointModule = new WaypointModule();
         swapAssistModule = new SwapAssistModule();
         placeOnPositionModule = new PlaceOnPositionModule();
+        keyMakerFeature = new KeyMakerFeature();
 
         cooldownFixKey = KeyBindingCompat.register(
                 "key.oneaddons.cooldownfix",
@@ -83,6 +88,7 @@ public class OneAddons implements ClientModInitializer {
         if (chestAssistEnabled) chestAssistModule.tick(client);
         if (swapAssistEnabled) swapAssistModule.tick(client);
         if (placeOnPositionEnabled) placeOnPositionModule.tick(client);
+        if (keyMakerEnabled) keyMakerFeature.tick(client);
 
         if (waypointEnabled && waypointKeyCode != GLFW.GLFW_KEY_UNKNOWN) {
             long window = client.getWindow().handle();
