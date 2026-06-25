@@ -45,6 +45,9 @@ public class OneAddonsConfig {
             OneAddons.swapAssistEnabled = data.swapAssistEnabled;
             OneAddons.cooldownFixEnabled = data.cooldownFixEnabled;
             OneAddons.placeOnPositionEnabled = data.placeOnPositionEnabled;
+            OneAddons.keyMakerEnabled = data.keyMakerEnabled;
+            OneAddons.keyMakerMode = KeyMode.valueOf(data.keyMakerMode);
+            OneAddons.keyMakerClickDelay = data.keyMakerClickDelay;
             OneAddons.waypointKeyCode = data.waypointKeyCode;
 
             OneAddons.swapAssistModule.entries.clear();
@@ -82,6 +85,9 @@ public class OneAddonsConfig {
         data.swapAssistEnabled = OneAddons.swapAssistEnabled;
         data.cooldownFixEnabled = OneAddons.cooldownFixEnabled;
         data.placeOnPositionEnabled = OneAddons.placeOnPositionEnabled;
+        data.keyMakerEnabled = OneAddons.keyMakerEnabled;
+        data.keyMakerMode = OneAddons.keyMakerMode.name();
+        data.keyMakerClickDelay = OneAddons.keyMakerClickDelay;
         data.waypointKeyCode = OneAddons.waypointKeyCode;
 
         data.swapEntries = new ArrayList<>();
@@ -115,6 +121,9 @@ public class OneAddonsConfig {
         boolean swapAssistEnabled = false;
         boolean cooldownFixEnabled = false;
         boolean placeOnPositionEnabled = false;
+        boolean keyMakerEnabled = false;
+        String keyMakerMode = "BOTH";
+        int keyMakerClickDelay = 250;
         int waypointKeyCode = GLFW.GLFW_KEY_UNKNOWN;
         List<SwapEntryData> swapEntries = new ArrayList<>();
         List<PlaceEntryData> placeEntries = new ArrayList<>();
