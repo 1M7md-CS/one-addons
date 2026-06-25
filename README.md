@@ -6,14 +6,17 @@ Client-side Fabric mod for Minecraft 26.1.2 (Mojang mappings) with automation ut
 
 ## Features
 
-- **Flower** — Auto-right-clicks tall flowers you're looking at
-- **Mushroom** — Auto-attacks red mushrooms you're looking at; tracks brown mushrooms as you look at them
-- **Enchanting** — Auto-solves Chronomatron and Ultrasequencer in the Experimental Table
-- **ChestAssist** — Auto-right-clicks chests you look at with a random delay
-- **SwapAssist** — Auto-swaps to a target hotbar slot when you select a trigger slot
-- **PlaceOnPosition** — Runs a configurable sequence of slot-swaps and interactions when you stand near a saved waypoint
-- **Waypoint** — Saves your current position to a JSON file on key press
-- **CooldownFix** — Removes the 5-tick mining cooldown (toggleable)
+| Module | Description |
+|--------|-------------|
+| **Flower** | Auto-right-clicks tall flowers you're looking at |
+| **Mushroom** | Auto-attacks red mushrooms; tracks brown mushrooms |
+| **Enchanting** | Auto-solves Chronomatron & Ultrasequencer in the Experimental Table |
+| **ChestAssist** | Auto-right-clicks chests with configurable random delay |
+| **SwapAssist** | Auto-swaps to a target hotbar slot when you select a trigger slot |
+| **PlaceOnPosition** | Configurable sequence of slot-swaps & interactions when near a saved waypoint |
+| **Waypoint** | Saves current position to JSON on key press |
+| **CooldownFix** | Removes the 5-tick mining cooldown (toggleable) |
+| **KeyMaker** | Auto-crafts Tungsten or Umber keys in the Forge (scan, collect, craft, repeat) |
 
 ## Requirements
 
@@ -25,15 +28,17 @@ Client-side Fabric mod for Minecraft 26.1.2 (Mojang mappings) with automation ut
 ## Installation
 
 1. Install Fabric Loader for Minecraft 26.1.2
-2. Put OneAddons.jar in your `mods/` folder
-3. Put Fabric API in `mods/` too
+2. Place `OneAddons.jar` in your `mods/` folder
+3. Place Fabric API in `mods/` too
 4. Launch the game
 
 ## Usage
 
-Open the UI with `/oneaddons` in-game. Toggle features on/off and configure keybinds.
+Open the UI with `/oneaddons` in-game (3 tabs: Utility, Enchant, Plants). Toggle features on/off and configure keybinds.
 
-Off-days are saved to `config/oneaddons/positions.json` and placement sequences to `config/oneaddons/placeonposition.json`.
+- Waypoints save to `config/oneaddons/positions.json`
+- Placement sequences save to `config/oneaddons/placeonposition.json`
+- KeyMaker uses the Rift Forge with configurable mode (Tungsten/Umber) and click delay
 
 ## Building
 
