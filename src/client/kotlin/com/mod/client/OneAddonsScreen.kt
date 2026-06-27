@@ -147,10 +147,6 @@ class OneAddonsScreen : Screen(Component.literal("OneAddons")) {
             { OneAddons.chestAssistEnabled }, { v -> OneAddons.chestAssistEnabled = v })
         yy += ROW_H
 
-        drawToggleRow(g, left, right, yy, mx, my, "\u23F1 CooldownFix",
-            { OneAddons.cooldownFixEnabled }, { v -> OneAddons.cooldownFixEnabled = v })
-        yy += ROW_H
-
         g.fill(left + 20, yy, right, yy + 1, C_SEPARATOR)
         yy += 6
 
@@ -402,7 +398,7 @@ class OneAddonsScreen : Screen(Component.literal("OneAddons")) {
             1 -> 12 + 8 + ROW_H + 10
             else -> {
                 var h = ROW_H + 14
-                h += 6 + ROW_H + ROW_H
+                h += 6 + ROW_H
                 h += 6 + ROW_H
                 if (OneAddons.swapAssistEnabled) {
                     h += OneAddons.swapAssistModule.entries.size * ROW_H + 3 + 16
@@ -452,13 +448,6 @@ class OneAddonsScreen : Screen(Component.literal("OneAddons")) {
 
         if (inRect(mx, my, left, yy, right - left, ROW_H)) {
             OneAddons.chestAssistEnabled = !OneAddons.chestAssistEnabled
-            OneAddonsConfig.save()
-            return
-        }
-        yy += ROW_H
-
-        if (inRect(mx, my, left, yy, right - left, ROW_H)) {
-            OneAddons.cooldownFixEnabled = !OneAddons.cooldownFixEnabled
             OneAddonsConfig.save()
             return
         }

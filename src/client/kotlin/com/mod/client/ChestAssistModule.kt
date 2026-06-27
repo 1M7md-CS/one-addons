@@ -83,13 +83,6 @@ class ChestAssistModule {
         }
     }
 
-    private fun reset() {
-        lastChestPos = null
-        pendingChestPos = null
-        pendingChestHit = null
-        interactTimer = 0
-    }
-
     private fun randInt(min: Int, max: Int): Int {
         return if (min >= max) min
         else ThreadLocalRandom.current().nextInt(min, max + 1)

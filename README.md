@@ -15,7 +15,6 @@ Written in **Kotlin** (migrated from Java).
 | **SwapAssist** | Auto-swaps to a target hotbar slot when you select a trigger slot |
 | **PlaceOnPosition** | Configurable sequence of slot-swaps & interactions when near a saved waypoint |
 | **Waypoint** | Saves current position to JSON on key press |
-| **CooldownFix** | Removes the 5-tick mining cooldown (toggleable) |
 | **KeyMaker** | Auto-crafts Tungsten or Umber keys in the Forge (scan, collect, craft, repeat) |
 
 ## Requirements

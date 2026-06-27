@@ -1,11 +1,9 @@
 package com.mod.client
 
-import com.mod.client.compat.KeyBindingCompat
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
 
@@ -23,7 +21,6 @@ class OneAddons : ClientModInitializer {
         @JvmField var chestAssistEnabled = false
         @JvmField var waypointEnabled = false
         @JvmField var swapAssistEnabled = false
-        @JvmField var cooldownFixEnabled = false
         @JvmField var placeOnPositionEnabled = false
         @JvmField var keyMakerEnabled = false
         @JvmField var keyMakerMode = KeyMode.TUNGSTEN
@@ -34,7 +31,6 @@ class OneAddons : ClientModInitializer {
     }
 
     private var waypointKeyPrev = false
-    private var cooldownFixKey: KeyMapping? = null
     private var enchantingAssistModule: EnchantingAssistModule? = null
     private var flowerModule: FlowerModule? = null
     private var mushroomModule: MushroomModule? = null
@@ -52,12 +48,6 @@ class OneAddons : ClientModInitializer {
         swapAssistModule = SwapAssistModule()
         placeOnPositionModule = PlaceOnPositionModule()
         keyMakerFeature = KeyMakerFeature()
-
-        cooldownFixKey = KeyBindingCompat.register(
-            "key.oneaddons.cooldownfix",
-            GLFW.GLFW_KEY_UNKNOWN,
-            "misc"
-        )
 
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             dispatcher.register(ClientCommands.literal("oneaddons").executes {
@@ -96,10 +86,6 @@ class OneAddons : ClientModInitializer {
                 waypointModule?.saveCurrentPosition()
             }
             waypointKeyPrev = now
-        }
-
-        if (cooldownFixKey?.consumeClick() == true) {
-            cooldownFixEnabled = !cooldownFixEnabled
         }
     }
 }

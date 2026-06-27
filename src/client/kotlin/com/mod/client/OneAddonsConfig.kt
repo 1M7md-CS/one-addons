@@ -41,7 +41,6 @@ object OneAddonsConfig {
                 OneAddons.chestAssistEnabled = data.chestAssistEnabled
                 OneAddons.waypointEnabled = data.waypointEnabled
                 OneAddons.swapAssistEnabled = data.swapAssistEnabled
-                OneAddons.cooldownFixEnabled = data.cooldownFixEnabled
                 OneAddons.placeOnPositionEnabled = data.placeOnPositionEnabled
                 OneAddons.keyMakerEnabled = data.keyMakerEnabled
                 OneAddons.keyMakerMode = KeyMode.valueOf(data.keyMakerMode)
@@ -79,7 +78,6 @@ object OneAddonsConfig {
         data.chestAssistEnabled = OneAddons.chestAssistEnabled
         data.waypointEnabled = OneAddons.waypointEnabled
         data.swapAssistEnabled = OneAddons.swapAssistEnabled
-        data.cooldownFixEnabled = OneAddons.cooldownFixEnabled
         data.placeOnPositionEnabled = OneAddons.placeOnPositionEnabled
         data.keyMakerEnabled = OneAddons.keyMakerEnabled
         data.keyMakerMode = OneAddons.keyMakerMode.name
@@ -117,7 +115,6 @@ object OneAddonsConfig {
         @JvmField var chestAssistEnabled = false
         @JvmField var waypointEnabled = false
         @JvmField var swapAssistEnabled = false
-        @JvmField var cooldownFixEnabled = false
         @JvmField var placeOnPositionEnabled = false
         @JvmField var keyMakerEnabled = false
         @JvmField var keyMakerMode = "TUNGSTEN"

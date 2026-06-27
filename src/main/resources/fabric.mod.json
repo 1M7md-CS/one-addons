@@ -9,9 +9,6 @@
   ],
   "license": "MIT",
   "environment": "client",
-  "mixins": [
-    "oneaddons.mixins.json"
-  ],
   "entrypoints": {
     "client": [
       "com.mod.client.OneAddons"

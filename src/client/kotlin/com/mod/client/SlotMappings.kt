@@ -32,6 +32,4 @@ object SlotMappings {
     @JvmStatic
     fun isFurnace(stack: ItemStack): Boolean = stack.item === Items.FURNACE
 
-    @JvmStatic
-    fun isNetherStar(stack: ItemStack): Boolean = stack.item === Items.NETHER_STAR
 }

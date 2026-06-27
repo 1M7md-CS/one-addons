@@ -93,5 +93,4 @@ class MushroomModule {
         breakCooldown = 0
     }
 
-    fun isTracking(): Boolean = trackedPos != null
 }

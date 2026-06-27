@@ -69,8 +69,6 @@ class FlowerModule {
         clickTracker.reset()
     }
 
-    fun getCurrentCps(): Int = clickTracker.currentCps
-
     private fun stopAimingSoft(now: Long) {
         if (hadValidTargetLast) lastTargetLostTime = now
         hadValidTargetLast = false
