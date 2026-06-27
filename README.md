@@ -1,8 +1,8 @@
-# OneAddons (26.1.2)
+# OneAddons (v2.0.0)
 
 Client-side Fabric mod for Minecraft 26.1.2 (Mojang mappings) with automation utilities for Hypixel SkyBlock.
 
-> **Branch:** `port/mc-26.1.2` — Ported from the original 1.21.11 Yarn version on `main`.
+Written in **Kotlin** (migrated from Java).
 
 ## Features
 
@@ -23,6 +23,7 @@ Client-side Fabric mod for Minecraft 26.1.2 (Mojang mappings) with automation ut
 - Minecraft 26.1.2
 - Fabric Loader >= 0.19.3
 - Fabric API >= 0.152.1+26.1.2
+- Fabric Language Kotlin >= 1.13.12+kotlin.2.4.0
 - Java >= 25
 
 ## Installation
@@ -46,7 +47,7 @@ Open the UI with `/oneaddons` in-game (3 tabs: Utility, Enchant, Plants). Toggle
 ./gradlew build
 ```
 
-Output is in `build/libs/`.
+Output is in `build/libs/`. The mod is written in Kotlin and compiled via the Kotlin JVM plugin.
 
 ## License
 
