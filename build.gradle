@@ -1,6 +1,7 @@
 plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version "${kotlin_version}"
 }
 
 version = project.mod_version
@@ -20,10 +21,17 @@ loom {
     }
 }
 
+sourceSets {
+    client {
+        kotlin { srcDirs += "src/client/kotlin" }
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    implementation "net.fabricmc:fabric-language-kotlin:${fabric_language_kotlin_version}"
 }
 
 processResources {
@@ -35,6 +43,12 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 25
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
 }
 
 java {
