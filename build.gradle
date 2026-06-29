@@ -11,6 +11,10 @@ base {
     archivesName = project.archives_base_name
 }
 
+repositories {
+    maven { url "https://api.modrinth.com/maven" }
+}
+
 loom {
     splitEnvironmentSourceSets()
     mods {
@@ -32,6 +36,7 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     implementation "net.fabricmc:fabric-language-kotlin:${fabric_language_kotlin_version}"
+    implementation "maven.modrinth:odin:${odin_version}"
 }
 
 processResources {

@@ -3,7 +3,7 @@
   "id": "oneaddons",
   "version": "${version}",
   "name": "OneAddons",
-  "description": "OneAddons - Flower, Mushroom & Enchanting utilities.",
+  "description": "OneAddons - Flower, Mushroom & Utility mod.",
   "authors": [
     "1M7md"
   ],
@@ -19,6 +19,7 @@
     "minecraft": ">=26.1.2",
     "fabric-api": "*",
     "fabric-language-kotlin": ">=1.12.0",
+    "odin": ">=0.2.2",
     "java": ">=25"
   }
 }
