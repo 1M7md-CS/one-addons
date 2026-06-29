@@ -130,19 +130,37 @@ object AutoExperiment : Module (
 
             if (hasData || center.item != Items.GLOWSTONE) return
 
+            val previousSlots = order.values.toSet()
             order.clear()
 
+            val candidates = mutableMapOf<Int, MutableList<Int>>()
+
             for (slot in slots) {
-                if (slot.index in 9..44 && slot.item.hoverName.string.noControlCodes.matches(Regex("\\d+"))) order[slot.item.count - 1] = slot.index
+                if (slot.index in 9..44) {
+                    val name = slot.item.hoverName.string.noControlCodes
+                    if (name.matches(Regex("\\d+"))) {
+                        val key = slot.item.count - 1
+                        candidates.getOrPut(key) { mutableListOf() }.add(slot.index)
+                    }
+                }
+            }
+
+            for ((key, slots) in candidates) {
+                order[key] = if (slots.size == 1) {
+                    slots[0]
+                } else {
+                    slots.firstOrNull { it !in previousSlots } ?: slots.last()
+                }
             }
 
             hasData = true
             clicks = 0
         }
 
-        override fun nextClick(): Int? = if (!hasData) order[clicks++] else null
+        override fun nextClick(): Int? = if (!hasData && clicks < order.size) order[clicks++] else null
 
-        override fun shouldClose(autoClose: Boolean): Boolean = autoClose && order.size > if (getMaxXp) 20 else 9 - serumCount
+        override fun shouldClose(autoClose: Boolean): Boolean =
+            autoClose && clicks >= order.size && order.size > if (getMaxXp) 19 else 7 - serumCount
     }
 
     private abstract class ExperimentHandler {
