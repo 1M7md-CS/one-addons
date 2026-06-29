@@ -2,7 +2,7 @@
 
 Client-side Fabric mod for Minecraft 26.1.2 with automation utilities for Hypixel SkyBlock.
 
-Powered by **Odin API** — all configuration is done through Odin's GUI (no custom UI).
+Powered by **Odin API** — all configuration is done through Odin's GUI
 
 ## Modules
 
