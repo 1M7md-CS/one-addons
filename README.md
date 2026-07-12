@@ -16,6 +16,7 @@ Powered by **Odin API** — all configuration is done through Odin's GUI
 | **Place On Position** | Executes slot-swap & interaction sequences when near saved waypoints |
 | **Waypoint** | Saves current position to JSON on key press |
 | **Key Maker** | Auto-crafts Tungsten or Umber keys in the Forge |
+| **Toggle Key** | Toggle any keybind on/off with a single press |
 
 ## Requirements
 
