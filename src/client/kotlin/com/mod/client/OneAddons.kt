@@ -1,6 +1,7 @@
 package com.mod.client
 
 import com.mod.client.module.AutoExperiment
+import com.mod.client.module.AutoJump
 import com.mod.client.module.ChestAssist
 import com.mod.client.module.Flower
 import com.mod.client.module.KeyMaker
@@ -20,6 +21,7 @@ class OneAddons : ClientModInitializer {
         ModuleManager.registerModules(
             moduleConfig,
             AutoExperiment,
+            AutoJump,
             Flower,
             Mushroom,
             ChestAssist,
