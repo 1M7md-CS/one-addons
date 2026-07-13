@@ -75,6 +75,7 @@ object AutoJump : Module(
             wantsJump = false
         }
         cooldown = 0
+        super.onDisable()
     }
 
     private fun setKeyMappingDown(km: KeyMapping, down: Boolean) {
