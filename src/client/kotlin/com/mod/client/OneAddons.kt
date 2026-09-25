@@ -3,9 +3,9 @@ package com.mod.client
 import com.mod.client.module.AutoExperiment
 import com.mod.client.module.AutoJump
 import com.mod.client.module.ChestAssist
-import com.mod.client.module.Flower
 import com.mod.client.module.KeyMaker
 import com.mod.client.module.Mushroom
+import com.mod.client.module.NoBlind
 import com.mod.client.module.PlaceOnPosition
 import com.mod.client.module.SwapAssist
 import com.mod.client.module.ToggleKey
@@ -22,8 +22,8 @@ class OneAddons : ClientModInitializer {
             moduleConfig,
             AutoExperiment,
             AutoJump,
-            Flower,
             Mushroom,
+            NoBlind,
             ChestAssist,
             Waypoint,
             SwapAssist,

@@ -17,8 +17,8 @@ object Mushroom : Module(
     description = "Auto-breaks red and brown mushrooms.",
     category = Categories.ONEADDONS
 ) {
-    private const val MUSHROOM_BREAK_COOLDOWN_MIN = 2
-    private const val MUSHROOM_BREAK_COOLDOWN_MAX = 5
+    private const val MUSHROOM_BREAK_COOLDOWN_MIN = 5
+    private const val MUSHROOM_BREAK_COOLDOWN_MAX = 8
 
     private var trackedPos: BlockPos? = null
     private var breakAttempts = 0
@@ -90,5 +90,12 @@ object Mushroom : Module(
                 }
             }
         }
+    }
+
+    override fun onDisable() {
+        trackedPos = null
+        breakAttempts = 0
+        breakCooldown = 0
+        super.onDisable()
     }
 }

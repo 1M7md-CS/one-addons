@@ -9,11 +9,11 @@ Powered by **Odin API** — all configuration is done through Odin's GUI
 | Module | Description |
 |--------|-------------|
 | **Auto Experiment** | Automatically solves Chronomatron and Ultrasequencer experiments |
-| **Flower** | Auto-breaks tall flowers with configurable CPS |
 | **Mushroom** | Auto-breaks red and brown mushrooms |
+| **NoBlind** | Removes blindness effects while enabled |
 | **Chest Assist** | Auto-interacts with chests with configurable delay |
-| **Swap Assist** | Auto-swaps to a target hotbar slot when a trigger slot is selected |
-| **Place On Position** | Executes slot-swap & interaction sequences when near saved waypoints |
+| **Auto Slot Swap** | Switches from a trigger slot to a target slot and optionally uses items |
+| **Waypoint Actions** | Runs optional item-use and return-slot actions near saved waypoints |
 | **Waypoint** | Saves current position to JSON on key press |
 | **Key Maker** | Auto-crafts Tungsten or Umber keys in the Forge |
 | **Toggle Key** | Toggle any keybind on/off with a single press |
