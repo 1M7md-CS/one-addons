@@ -53,11 +53,12 @@ object AutoExperiment : Module (
             cancel()
         }
 
-        on<GuiEvent.SlotUpdate> {
+        on<SetSlotEvent> {
+            if (menu !== (mc.screen as? AbstractContainerScreen<*>)?.menu) return@on
             handler?.onSlotUpdate(this)
         }
 
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val handler = handler ?: return@on
             val screen = mc.screen as? AbstractContainerScreen<*> ?: return@on
 
@@ -81,7 +82,7 @@ object AutoExperiment : Module (
         private var lastAddedSlot = -1
         private var close = false
 
-        override fun onSlotUpdate(event: GuiEvent.SlotUpdate) {
+        override fun onSlotUpdate(event: SetSlotEvent) {
             val slots = event.menu.slots
             val center = slots[49].item
 
@@ -119,7 +120,7 @@ object AutoExperiment : Module (
     private class UltrasequencerHandler : ExperimentHandler() {
         private val order = ConcurrentHashMap<Int, Int>()
 
-        override fun onSlotUpdate(event: GuiEvent.SlotUpdate) {
+        override fun onSlotUpdate(event: SetSlotEvent) {
             val slots = event.menu.slots
             val center = slots[49].item
 
@@ -167,7 +168,7 @@ object AutoExperiment : Module (
         protected var clicks = 0
         protected var hasData = false
 
-        abstract fun onSlotUpdate(event: GuiEvent.SlotUpdate)
+        abstract fun onSlotUpdate(event: SetSlotEvent)
 
         abstract fun nextClick(): Int?
 

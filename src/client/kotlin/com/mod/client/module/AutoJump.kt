@@ -23,7 +23,7 @@ object AutoJump : Module(
     private var cooldown = 0
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             if (wantsJump) {
                 setKeyMappingDown(mc.options.keyJump, false)
                 wantsJump = false

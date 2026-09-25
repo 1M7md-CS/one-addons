@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.level.block.DoublePlantBlock
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
@@ -30,7 +31,6 @@ object Flower : Module(
     private const val STABLE_CREDIT_PER_TICK = 14.0 / TICKS_PER_SECOND
     private const val MAX_CLICK_CREDIT = 2.0
     private const val MAX_CLICKS_PER_TICK = 1
-    private const val PLANT_CHECK_RANGE_UP = 3
     private const val TARGET_SWITCH_GRACE_MS = 700L
     private const val HIT_OFFSET_RANGE = 0.10
 
@@ -40,7 +40,7 @@ object Flower : Module(
     private val clickTracker = ClickTracker()
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val now = System.currentTimeMillis()
             clickTracker.pruneOldClicks(now)
             val player = mc.player ?: run { stopAimingSoft(now); return@on }
@@ -68,6 +68,14 @@ object Flower : Module(
                 clickCredit -= 1.0
             }
         }
+    }
+
+    override fun onDisable() {
+        clickTracker.reset()
+        clickCredit = 0.0
+        hadValidTargetLast = false
+        lastTargetLostTime = 0L
+        super.onDisable()
     }
 
     private fun stopAimingSoft(now: Long) {
@@ -103,18 +111,9 @@ object Flower : Module(
     }
 
     private fun isHarvestableBlock(pos: BlockPos): Boolean {
-        return mc.level != null && isTallPlant(pos) && hasTallPlantAbove(pos)
-    }
-
-    private fun hasTallPlantAbove(pos: BlockPos): Boolean {
-        for (i in 1..PLANT_CHECK_RANGE_UP) {
-            if (isTallPlant(pos.above(i))) return true
-        }
-        return false
-    }
-
-    private fun isTallPlant(pos: BlockPos): Boolean {
-        return mc.level?.getBlockState(pos)?.block is DoublePlantBlock
+        val state = mc.level?.getBlockState(pos) ?: return false
+        return state.block is DoublePlantBlock &&
+            state.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.UPPER
     }
 
     private fun isWithinReach(player: LocalPlayer, pos: BlockPos): Boolean {

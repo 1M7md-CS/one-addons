@@ -21,7 +21,7 @@ object ToggleKey : Module(
     private var prevKeyState = false
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             if (!enabled) return@on
             val key = toggleKey
             if (key == InputConstants.UNKNOWN) return@on
@@ -51,15 +51,6 @@ object ToggleKey : Module(
             findKeyMapping(key)?.let { setKeyMappingDown(it, toggled) }
         }
 
-        on<TickEvent.End> {
-            if (!enabled) return@on
-            val key = toggleKey
-            if (key == InputConstants.UNKNOWN) return@on
-
-            if (mc.screen != null) return@on
-
-            findKeyMapping(key)?.let { setKeyMappingDown(it, toggled) }
-        }
     }
 
     override fun onDisable() {

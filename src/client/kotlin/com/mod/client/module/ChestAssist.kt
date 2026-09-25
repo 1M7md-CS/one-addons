@@ -25,7 +25,7 @@ object ChestAssist : Module(
     private var pendingChestHit: BlockHitResult? = null
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val player = mc.player ?: return@on
             val level = mc.level ?: return@on
             val gameMode = mc.gameMode ?: return@on

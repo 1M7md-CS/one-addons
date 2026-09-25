@@ -27,7 +27,7 @@ object Waypoint : Module(
     private var prevKeyState = false
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val key = saveKey
             if (key == InputConstants.UNKNOWN) return@on
 

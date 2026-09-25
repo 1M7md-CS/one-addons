@@ -25,7 +25,7 @@ object Mushroom : Module(
     private var breakCooldown = 0
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val player = mc.player ?: run { trackedPos = null; return@on }
             val level = mc.level ?: run { trackedPos = null; return@on }
             val gameMode = mc.gameMode ?: run { trackedPos = null; return@on }

@@ -54,7 +54,7 @@ object SwapAssist : Module(
     }
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val player = mc.player ?: return@on
             val gameMode = mc.gameMode ?: return@on
 

@@ -24,7 +24,7 @@ Powered by **Odin API** — all configuration is done through Odin's GUI
 - Fabric Loader >= 0.19.3
 - Fabric API >= 0.152.1+26.1.2
 - Fabric Language Kotlin >= 1.13.12+kotlin.2.4.0
-- Odin >= 0.2.2
+- Odin >= 0.3.4
 - Java >= 25
 
 ## Building

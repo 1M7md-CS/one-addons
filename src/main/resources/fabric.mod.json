@@ -19,7 +19,7 @@
     "minecraft": ">=26.1.2",
     "fabric-api": "*",
     "fabric-language-kotlin": ">=1.12.0",
-    "odin": ">=0.2.2",
+    "odin": ">=0.3.4",
     "java": ">=25"
   }
 }

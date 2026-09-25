@@ -69,7 +69,7 @@ object PlaceOnPosition : Module(
     private var currentTarget: Waypoint? = null
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             val player = mc.player ?: return@on
             val gameMode = mc.gameMode ?: return@on
 

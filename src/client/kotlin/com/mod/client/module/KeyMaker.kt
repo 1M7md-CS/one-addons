@@ -29,7 +29,7 @@ object KeyMaker : Module(
     private var lastActionTime = 0L
 
     init {
-        on<TickEvent.Start> {
+        on<TickEvent.End> {
             if (mc.player == null || mc.level == null || mc.gameMode == null) {
                 reset(); return@on
             }
