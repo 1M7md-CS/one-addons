@@ -15,13 +15,15 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.inventory.ChestMenu
 import net.minecraft.world.item.Items
 
+private enum class KeyMode { TUNGSTEN, UMBER }
+
 object KeyMaker : Module(
     name = "Key Maker",
     description = "Automates the Forge UI for crafting Tungsten and Umber Keys.",
     category = Categories.ONEADDONS
 ) {
-    private val mode by SelectorSetting("Mode", "Tungsten", listOf("Tungsten", "Umber"), desc = "Key type to craft.")
-    private val clickDelay by NumberSetting("Click Delay", 500, 100, 2000, 50, unit = "ms", desc = "Delay between clicks.")
+    private val mode by SelectorSetting("Mode", KeyMode.TUNGSTEN, "Key type to craft.", listOf(KeyMode.TUNGSTEN, KeyMode.UMBER))
+    private val clickDelay by NumberSetting("Click Delay", 500, 100..2000, 50, unit = "ms", desc = "Delay between clicks.")
 
     private var state = KeyMakerState.IDLE
     private var currentSlotIndex = 0
@@ -105,7 +107,7 @@ object KeyMaker : Module(
     }
 
     private fun tickCraftFurnace() {
-        if (mc.screen == null) { return }
+        if (mc.gui.screen() == null) { return }
         if (!readyToClick()) return
         val screen = getScreen() ?: return
         val title = screen.title.string
@@ -120,16 +122,16 @@ object KeyMaker : Module(
     }
 
     private fun tickWaitProcess() {
-        if (mc.screen == null) return
+        if (mc.gui.screen() == null) return
         if (!readyToClick()) return
-            val keySlot = if (mode == 0) SlotMappings.KEY_SELECTION_TUNGSTEN_SLOT
+            val keySlot = if (mode == KeyMode.TUNGSTEN) SlotMappings.KEY_SELECTION_TUNGSTEN_SLOT
                 else SlotMappings.KEY_SELECTION_UMBER_SLOT
         performClick(keySlot)
         state = KeyMakerState.CONFIRM
     }
 
     private fun tickConfirm() {
-        if (mc.screen == null) return
+        if (mc.gui.screen() == null) return
         if (!readyToClick()) return
         val screen = getScreen() ?: return
         val title = screen.title.string
@@ -168,7 +170,7 @@ object KeyMaker : Module(
 
     private fun sendNotification() {
         val player = mc.player ?: return
-        val msg = if (mode == 0) "[KeyMaker] Finished crafting Tungsten Keys."
+        val msg = if (mode == KeyMode.TUNGSTEN) "[KeyMaker] Finished crafting Tungsten Keys."
             else "[KeyMaker] Finished crafting Umber Keys."
         player.sendSystemMessage(Component.literal(msg))
     }
@@ -184,7 +186,7 @@ object KeyMaker : Module(
         if (slot.topSlot >= slots.size || slot.lastGlassSlot >= slots.size) return false
         val top = slots[slot.topSlot].item
         val lastGlass = slots[slot.lastGlassSlot].item
-        return SlotMappings.isFurnace(top) && lastGlass.item === Items.RED_STAINED_GLASS_PANE
+        return SlotMappings.isFurnace(top) && lastGlass.item === Items.STAINED_GLASS_PANE.red()
     }
 
     private fun isSlotCompleted(slot: ForgeSlot): Boolean {
@@ -193,7 +195,7 @@ object KeyMaker : Module(
         if (slot.topSlot >= slots.size || slot.lastGlassSlot >= slots.size) return false
         val lastGlass = slots[slot.lastGlassSlot].item
         val top = slots[slot.topSlot].item
-        return lastGlass.item === Items.LIME_STAINED_GLASS_PANE && !top.isEmpty && !SlotMappings.isFurnace(top)
+        return lastGlass.item === Items.STAINED_GLASS_PANE.lime() && !top.isEmpty && !SlotMappings.isFurnace(top)
     }
 
     private fun findSlotByTop(topSlot: Int): ForgeSlot? {
@@ -220,7 +222,7 @@ object KeyMaker : Module(
     }
 
     private fun getScreen(): AbstractContainerScreen<*>? {
-        return mc.screen as? AbstractContainerScreen<*>
+        return mc.gui.screen() as? AbstractContainerScreen<*>
     }
 
     private fun getMenu(): ChestMenu? {

@@ -30,7 +30,7 @@ object Mushroom : Module(
             val level = mc.level ?: run { trackedPos = null; return@on }
             val gameMode = mc.gameMode ?: run { trackedPos = null; return@on }
 
-            if (mc.screen != null) {
+            if (mc.gui.screen() != null) {
                 trackedPos = null
                 return@on
             }

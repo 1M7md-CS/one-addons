@@ -30,7 +30,7 @@ object ChestAssist : Module(
             val level = mc.level ?: return@on
             val gameMode = mc.gameMode ?: return@on
 
-            if (mc.screen != null) {
+            if (mc.gui.screen() != null) {
                 pendingChestPos = null
                 pendingChestHit = null
                 return@on

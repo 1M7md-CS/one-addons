@@ -1,6 +1,6 @@
 # OneAddons
 
-Client-side Fabric mod for Minecraft 26.1.2 with automation utilities for Hypixel SkyBlock.
+Client-side Fabric mod for Minecraft 26.2 with automation utilities for Hypixel SkyBlock.
 
 Powered by **Odin API** — all configuration is done through Odin's GUI
 
@@ -20,11 +20,11 @@ Powered by **Odin API** — all configuration is done through Odin's GUI
 
 ## Requirements
 
-- Minecraft 26.1.2
-- Fabric Loader >= 0.19.3
-- Fabric API >= 0.152.1+26.1.2
-- Fabric Language Kotlin >= 1.13.12+kotlin.2.4.0
-- Odin >= 0.3.4
+- Minecraft 26.2
+- Fabric Loader >= 0.19.5
+- Fabric API >= 0.161.0+26.2
+- Fabric Language Kotlin >= 1.14.2+kotlin.2.4.21
+- Odin >= 0.3.6
 - Java >= 25
 
 ## Building

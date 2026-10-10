@@ -26,7 +26,7 @@ object ToggleKey : Module(
             val key = toggleKey
             if (key == InputConstants.UNKNOWN) return@on
 
-            if (mc.screen != null) {
+            if (mc.gui.screen() != null) {
                 if (toggled) {
                     findKeyMapping(key)?.let { setKeyMappingDown(it, false) }
                 }

@@ -1,7 +1,7 @@
 package com.mod.client.module
 
 import com.mod.client.category.Categories
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
@@ -24,34 +24,32 @@ object SwapAssist : Module(
     private val swapDelay: Int by NumberSetting(
         "Swap Delay",
         10,
-        1,
-        40,
-        1,
+        1..40,
         unit = "ticks",
         desc = "Ticks to wait before using the target-slot item."
     )
 
     private val profile1Enabled by DropdownSetting("Profile 1", true, "Enable and configure the first swap rule.")
-    private val s1Trig: Int by NumberSetting("P1 From Slot", 1, 1, 9, 1, desc = "Select the trigger slot.").withDependency { profile1Enabled }
-    private val s1Tar: Int by NumberSetting("P1 To Slot", 2, 1, 9, 1, desc = "Select the target slot.").withDependency { profile1Enabled }
+    private val s1Trig: Int by NumberSetting("P1 From Slot", 1, 1..9, 1, desc = "Select the trigger slot.").withDependency { profile1Enabled }
+    private val s1Tar: Int by NumberSetting("P1 To Slot", 2, 1..9, 1, desc = "Select the target slot.").withDependency { profile1Enabled }
     private val s1TrigRC by BooleanSetting("P1 Right Click Trigger", false, "Right-click the trigger item before swapping.").withDependency { profile1Enabled }
     private val s1TargRC by BooleanSetting("P1 Right Click Target", true, "Right-click the target item after swapping.").withDependency { profile1Enabled }
 
     private val profile2Enabled by DropdownSetting("Profile 2", false, "Enable and configure the second swap rule.")
-    private val s2Trig: Int by NumberSetting("P2 From Slot", 3, 1, 9, 1, desc = "Select the trigger slot.").withDependency { profile2Enabled }
-    private val s2Tar: Int by NumberSetting("P2 To Slot", 4, 1, 9, 1, desc = "Select the target slot.").withDependency { profile2Enabled }
+    private val s2Trig: Int by NumberSetting("P2 From Slot", 3, 1..9, 1, desc = "Select the trigger slot.").withDependency { profile2Enabled }
+    private val s2Tar: Int by NumberSetting("P2 To Slot", 4, 1..9, 1, desc = "Select the target slot.").withDependency { profile2Enabled }
     private val s2TrigRC by BooleanSetting("P2 Right Click Trigger", false, "Right-click the trigger item before swapping.").withDependency { profile2Enabled }
     private val s2TargRC by BooleanSetting("P2 Right Click Target", true, "Right-click the target item after swapping.").withDependency { profile2Enabled }
 
     private val profile3Enabled by DropdownSetting("Profile 3", false, "Enable and configure the third swap rule.")
-    private val s3Trig: Int by NumberSetting("P3 From Slot", 1, 1, 9, 1, desc = "Select the trigger slot.").withDependency { profile3Enabled }
-    private val s3Tar: Int by NumberSetting("P3 To Slot", 1, 1, 9, 1, desc = "Select the target slot.").withDependency { profile3Enabled }
+    private val s3Trig: Int by NumberSetting("P3 From Slot", 1, 1..9, 1, desc = "Select the trigger slot.").withDependency { profile3Enabled }
+    private val s3Tar: Int by NumberSetting("P3 To Slot", 1, 1..9, 1, desc = "Select the target slot.").withDependency { profile3Enabled }
     private val s3TrigRC by BooleanSetting("P3 Right Click Trigger", false, "Right-click the trigger item before swapping.").withDependency { profile3Enabled }
     private val s3TargRC by BooleanSetting("P3 Right Click Target", true, "Right-click the target item after swapping.").withDependency { profile3Enabled }
 
     private val profile4Enabled by DropdownSetting("Profile 4", false, "Enable and configure the fourth swap rule.")
-    private val s4Trig: Int by NumberSetting("P4 From Slot", 1, 1, 9, 1, desc = "Select the trigger slot.").withDependency { profile4Enabled }
-    private val s4Tar: Int by NumberSetting("P4 To Slot", 1, 1, 9, 1, desc = "Select the target slot.").withDependency { profile4Enabled }
+    private val s4Trig: Int by NumberSetting("P4 From Slot", 1, 1..9, 1, desc = "Select the trigger slot.").withDependency { profile4Enabled }
+    private val s4Tar: Int by NumberSetting("P4 To Slot", 1, 1..9, 1, desc = "Select the target slot.").withDependency { profile4Enabled }
     private val s4TrigRC by BooleanSetting("P4 Right Click Trigger", false, "Right-click the trigger item before swapping.").withDependency { profile4Enabled }
     private val s4TargRC by BooleanSetting("P4 Right Click Target", true, "Right-click the target item after swapping.").withDependency { profile4Enabled }
 

@@ -4,5 +4,5 @@ import com.odtheking.odin.features.Category
 
 object Categories {
     @JvmField
-    val ONEADDONS = Category.custom("OneAddons")
+    val ONEADDONS = Category.custom("OneAddons", 860, 10)
 }

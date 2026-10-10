@@ -19,10 +19,10 @@ object AutoExperiment : Module (
     description = "Automatically click on the Chronomatron and Ultrasequencer experiments.",
     category = Categories.ONEADDONS
 ) {
-    private val clickDelay by NumberSetting("Click Delay", 200, 100, 1000, 10, unit = "ms", desc = "Time in ms between automatic test clicks.")
-    private val delayVariety by NumberSetting("Delay variety", 50, 0, 1000, 10, unit = "ms", desc = "Variance in delays")
+    private val clickDelay by NumberSetting("Click Delay", 200, 100..1000, 10, unit = "ms", desc = "Time in ms between automatic test clicks.")
+    private val delayVariety by NumberSetting("Delay variety", 50, 0..1000, 10, unit = "ms", desc = "Variance in delays")
     private val autoClose by BooleanSetting("Auto Close", true, desc = "Automatically close the GUI after completing the experiment.")
-    private val serumCount by NumberSetting("Serum Count", 0, 0, 3, 1, desc = "Consumed Metaphysical Serum count.")
+    private val serumCount by NumberSetting("Serum Count", 0, 0..3, 1, desc = "Consumed Metaphysical Serum count.")
     private val getMaxXp by BooleanSetting("Get Max XP", false, desc = "Solve Chronomatron to 15 and Ultrasequencer to 20 for max XP.")
 
     private var handler: ExperimentHandler? = null
@@ -41,26 +41,26 @@ object AutoExperiment : Module (
 
         on<ScreenEvent.MouseClick> {
             if (handler == null) return@on
-            if (mc.screen !is AbstractContainerScreen<*>) return@on
+            if (mc.gui.screen() !is AbstractContainerScreen<*>) return@on
 
             cancel()
         }
 
         on<ScreenEvent.MouseRelease> {
             if (handler == null) return@on
-            if (mc.screen !is AbstractContainerScreen<*>) return@on
+            if (mc.gui.screen() !is AbstractContainerScreen<*>) return@on
 
             cancel()
         }
 
         on<SetSlotEvent> {
-            if (menu !== (mc.screen as? AbstractContainerScreen<*>)?.menu) return@on
+            if (menu !== (mc.gui.screen() as? AbstractContainerScreen<*>)?.menu) return@on
             handler?.onSlotUpdate(this)
         }
 
         on<TickEvent.End> {
             val handler = handler ?: return@on
-            val screen = mc.screen as? AbstractContainerScreen<*> ?: return@on
+            val screen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return@on
 
             val now = System.currentTimeMillis()
             if (now - lastClick < delay()) return@on

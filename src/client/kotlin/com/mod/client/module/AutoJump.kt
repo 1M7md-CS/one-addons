@@ -17,7 +17,7 @@ object AutoJump : Module(
     description = "Automatically jumps when colliding with a one-block-high obstacle while moving forward.",
     category = Categories.ONEADDONS
 ) {
-    private val jumpDelay by NumberSetting("Delay", 2, 0, 10, 1, unit = "t", desc = "Cooldown in ticks between jumps.")
+    private val jumpDelay by NumberSetting("Delay", 2, 0..10, 1, unit = "t", desc = "Cooldown in ticks between jumps.")
 
     private var wantsJump = false
     private var cooldown = 0
@@ -34,7 +34,7 @@ object AutoJump : Module(
 
             val player = mc.player ?: return@on
             val level = mc.level ?: return@on
-            if (mc.screen != null) return@on
+            if (mc.gui.screen() != null) return@on
             if (!player.onGround()) return@on
             if (!mc.options.keyUp.isDown) return@on
 
