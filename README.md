@@ -8,9 +8,10 @@ Powered by **Odin API** — all configuration is done through Odin's GUI
 
 | Module | Description |
 |--------|-------------|
-| **Auto Experiment** | Automatically solves Chronomatron and Ultrasequencer experiments |
+| **Auto Experiments** | Automatically solves Chronomatron and Ultrasequencer experiments |
+| **Auto Jump** | Automatically jumps over one-block-high obstacles while moving forward |
 | **Mushroom** | Auto-breaks red and brown mushrooms |
-| **NoBlind** | Removes blindness effects while enabled |
+| **No Blind** | Removes blindness effects while enabled |
 | **Chest Assist** | Auto-interacts with chests with configurable delay |
 | **Auto Slot Swap** | Switches from a trigger slot to a target slot and optionally uses items |
 | **Waypoint Actions** | Runs optional item-use and return-slot actions near saved waypoints |
